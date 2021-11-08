@@ -18,7 +18,7 @@ stop = False
 commands = ["open", "start taking note", "take a note", 
 			"write this down", "type this", "stop listening", 
 			"start typing", "press enter", "save",
-			"close window"]
+			"close window", "refresh page"]
 
 stopTypingTriggers = ["stop writing", "stop typing", "end note", "stop taking note"]
 
@@ -145,10 +145,12 @@ def textTransform(audio, r):
 								keys.press(Key.f4)
 								keys.release(Key.alt)
 								keys.release(Key.f4)
+							elif command == "refresh page":
+								keys.press(Key.f5)
+								keys.release(Key.f5)
 							break; 
 
 	except sr.UnknownValueError as e:
-		print("Transformation error")
 		pass
 	
 
@@ -161,7 +163,6 @@ def saveAudio(audio, num):
 def listen(source, audio):
 	while True:
 		try:
-			print("Listening")
 			audio[0] = r.listen(source)
 			break
 		except:
