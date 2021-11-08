@@ -1,8 +1,5 @@
 import speech_recognition as sr
 import threading
-import keyboard
-import wave
-import pyaudio
 import subprocess
 from pynput.keyboard import Key, Controller
 # more keys here: https://pythonhosted.org/pynput/keyboard.html#pynput.keyboard.Key
@@ -185,17 +182,3 @@ with sr.Microphone() as source:
 		x += 1
 		t.join()
 
-
-
-
-# loop
-# 	open thread to listen
-# 	process information
-#	wait for listen thread
-
-
-# close current window
-# take a note
-# write everything I say
-# get rid of last word
-# end note
