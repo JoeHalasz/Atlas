@@ -1,6 +1,5 @@
 import speech_recognition as sr
 import threading
-import subprocess
 from pynput.keyboard import Key, Controller
 # more keys here: https://pythonhosted.org/pynput/keyboard.html#pynput.keyboard.Key
 from word2number import w2n
@@ -154,8 +153,9 @@ def textTransform(audio, r):
 
 
 def saveAudio(audio, num):
-	with open("microphone-results" + str(num) + ".wav", "wb") as f:
-		f.write(audio.get_wav_data())
+	if audio != "":
+		with open("microphone-results" + str(num) + ".wav", "wb") as f:
+			f.write(audio.get_wav_data())
 
 
 def listen(source, audio):
