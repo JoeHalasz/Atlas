@@ -82,6 +82,19 @@ def typeWords(words):
 		typing = False;
 		
 
+def openApplication(commandParams):
+	if "chrome" in commandParams:
+		subprocess.call('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
+	elif "sublime" in commandParams:
+		subprocess.call('C:\\Program Files\\Sublime Text 3\\sublime_text.exe')
+	elif "brave" in commandParams:
+		subprocess.call('C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe')
+	elif "git" in commandParams:
+		subprocess.call('C:\\Users\\jhala\\AppData\\Local\\GitHubDesktop\\GitHubDesktop.exe')
+	elif "unity" in commandParams:
+		subprocess.call('C:\\Program Files\\Unity Hub\\Unity Hub.exe')
+
+
 
 def textTransform(audio, r):
 	global typing
@@ -106,40 +119,28 @@ def textTransform(audio, r):
 							if len(helper) > 1:
 								commandParams = helper[1]
 							if command == "open":
-								print(text)
-								if "chrome" in commandParams:
-									subprocess.call('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
-								elif "sublime" in commandParams:
-									subprocess.call('C:\\Program Files\\Sublime Text 3\\sublime_text.exe')
-								elif "brave" in commandParams:
-									subprocess.call('C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe')
-								elif "git" in commandParams:
-									subprocess.call('C:\\Users\\jhala\\AppData\\Local\\GitHubDesktop\\GitHubDesktop.exe')
-								elif "unity" in commandParams:
-									subprocess.call('C:\\Program Files\\Unity Hub\\Unity Hub.exe')
+								t = threading.Thread(target=openApplication, args=(commandParams,))
+								t.start()
 							elif command == "start taking note" or command == "write this down" or command == "take a note":
-								print("taking note")
-								subprocess.call('C:\\Program Files\\Sublime Text 3\\sublime_text.exe')
+								openApplication("sublime")
+								t = threading.Thread(target=openApplication, args=("sublime",))
+								t.start()
 								typing = True
 								if commandParams != "": # type anything they say after the command if its not in another sentence
 									typeWords(commandParams)
 							elif command == "type this" or command == "start typing":
-								print("Typing")
 								typing = True
 								if commandParams != "": # type anything they say after the command if its not in another sentence
 									typeWords(commandParams)
 							elif command == "save":
-								print("Saving")
 								keys.press(Key.ctrl_l)
 								keys.press("s")
 								keys.release(Key.ctrl_l)
 								keys.release("s")
 							elif command == "press enter":
-								print("Pressing enter")
 								keys.press(Key.enter)
 								keys.release(Key.enter)
 							elif command == "close window":
-								print("Closing Window")
 								keys.press(Key.alt)
 								keys.press(Key.f4)
 								keys.release(Key.alt)
@@ -147,6 +148,7 @@ def textTransform(audio, r):
 							break; 
 
 	except sr.UnknownValueError as e:
+		print("Transformation error")
 		pass
 	
 
@@ -159,9 +161,11 @@ def saveAudio(audio, num):
 def listen(source, audio):
 	while True:
 		try:
+			print("Listening")
 			audio[0] = r.listen(source)
 			break
 		except:
+			print("Listening error")
 			pass
 
 
