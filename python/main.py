@@ -1,6 +1,7 @@
 import speech_recognition as sr
 import threading
 from pynput.keyboard import Key, Controller
+import subprocess
 # more keys here: https://pythonhosted.org/pynput/keyboard.html#pynput.keyboard.Key
 from word2number import w2n
 
@@ -182,3 +183,7 @@ with sr.Microphone() as source:
 		x += 1
 		t.join()
 
+
+
+# word to vec
+# spacy
