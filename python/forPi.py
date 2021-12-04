@@ -22,7 +22,6 @@ def saveAudio(audio, x):
 			f.write(audio.get_wav_data())
 
 def sendAudio(sftp, x):
-	print("sending audio")
 	try:
 		sftp.put("sound"+str(x)+".wav", "autorun/audioFiles/sound"+str(x)+".wav")
 	except FileNotFoundError:
