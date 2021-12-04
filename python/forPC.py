@@ -99,7 +99,7 @@ def textTransform(audio, r):
 	global typing
 	try:
 		if audio != "":
-			text = r.recognize_google(audio)
+			text = r.recognize_google(audio) # this line will error if the download has not finished yet.
 			# r.recognize_sphinx(audio) # this is offline 
 			if text == "stop listening":
 				print("Good Bye")
@@ -161,32 +161,28 @@ def saveAudio(audio, num):
 
 def readAudio():
 	global x
-	path = os.path.expanduser('~') + "/autorun/audioFiles/sound"+str(x)+".wav"
+	path = os.path.expanduser('~') + "\\autorun\\audioFiles"
+	paths = []
+	while len(paths) == 0: # wait until there is something in the folder
+		paths = os.listdir(path)
+	
+	# get the one path we want to process this time 
+	path = path + "\\" + paths[0]
+	# print("checking", path)
 	while True:
-		if (os.path.exists(path)):
-			try:
-				with open(path, "rb") as f:
-					data = f.read()
-				print("got file")
-				t = threading.Thread(target=waitAndDeleteFile, args=(path,))
-				t.start()
-				return sr.AudioData(data, 44100, 2)
-			except PermissionError:
-				# print("waiting for download")
-				pass
+		try:
+			with open(path, "rb") as f:
+				data = f.read()
+			os.remove(path) # only delete the file if the audio came back as a real audio file.
+			return sr.AudioData(data, 44100, 2)
+		except PermissionError:
+			# print("waiting for download")
+			pass
 
 
-def waitAndDeleteFile(path):
-	time.sleep(.2)
-	os.remove(path) # delete it after use
 
-import time
 while True:
-	audio = readAudio(x)
-	# textTransform(audio[0], r)
-	t = threading.Thread(target=textTransform, args=(audio,r,))
-	t.start()
+	audio = readAudio()
+	textTransform(audio,r)
 	# saveAudio(audio, x)
-	t.join();
-	x+=1
 	
