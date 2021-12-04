@@ -4,7 +4,7 @@ from pynput.keyboard import Key, Controller
 import subprocess
 # more keys here: https://pythonhosted.org/pynput/keyboard.html#pynput.keyboard.Key
 from word2number import w2n
-
+import os
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -23,6 +23,7 @@ audio = [""]
 typing = False
 
 keys = Controller()
+x = 0
 
 
 def typeWords(words):
@@ -120,7 +121,6 @@ def textTransform(audio, r):
 								t = threading.Thread(target=openApplication, args=(commandParams,))
 								t.start()
 							elif command == "start taking note" or command == "write this down" or command == "take a note":
-								openApplication("sublime")
 								t = threading.Thread(target=openApplication, args=("sublime",))
 								t.start()
 								typing = True
@@ -160,18 +160,33 @@ def saveAudio(audio, num):
 
 
 def readAudio():
-	with open(os.path.expanduser('~') + "/autorun/sound.wav", "rb") as f:
-		data = in_file.read()
-	return data
+	global x
+	path = os.path.expanduser('~') + "/autorun/audioFiles/sound"+str(x)+".wav"
+	while True:
+		if (os.path.exists(path)):
+			try:
+				with open(path, "rb") as f:
+					data = f.read()
+				print("got file")
+				t = threading.Thread(target=waitAndDeleteFile, args=(path,))
+				t.start()
+				return sr.AudioData(data, 44100, 2)
+			except PermissionError:
+				# print("waiting for download")
+				pass
 
 
+def waitAndDeleteFile(path):
+	time.sleep(.2)
+	os.remove(path) # delete it after use
 
-last_audio = ''
-new_audio = readAudio()
+import time
 while True:
-	if (last_audio != new_audio):
-		# textTransform(audio[0], r)
-		t = threading.Thread(target=textTransform, args=(new_audio,r,))
-		# saveAudio(new_audio, x)
-		last_audio = new_audio
+	audio = readAudio(x)
+	# textTransform(audio[0], r)
+	t = threading.Thread(target=textTransform, args=(audio,r,))
+	t.start()
+	# saveAudio(audio, x)
+	t.join();
+	x+=1
 	

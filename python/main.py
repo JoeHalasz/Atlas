@@ -120,7 +120,6 @@ def textTransform(audio, r):
 								t = threading.Thread(target=openApplication, args=(commandParams,))
 								t.start()
 							elif command == "start taking note" or command == "write this down" or command == "take a note":
-								openApplication("sublime")
 								t = threading.Thread(target=openApplication, args=("sublime",))
 								t.start()
 								typing = True
