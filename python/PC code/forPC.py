@@ -5,6 +5,7 @@ import subprocess
 # more keys here: https://pythonhosted.org/pynput/keyboard.html#pynput.keyboard.Key
 from word2number import w2n
 import os
+from Events import createTimedEvents
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -81,6 +82,8 @@ def typeWords(words):
 		typing = False;
 		
 
+
+# TODO better way to do this might be to press the windows key and type it then press enter
 def openApplication(commandParams):
 	if "chrome" in commandParams:
 		subprocess.call('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
@@ -130,7 +133,7 @@ def textTransform(audio, r):
 								typing = True
 								if commandParams != "": # type anything they say after the command if its not in another sentence
 									typeWords(commandParams)
-							elif command == "save":
+							elif command == "save" and text == "save":
 								keys.press(Key.ctrl_l)
 								keys.press("s")
 								keys.release(Key.ctrl_l)
@@ -181,8 +184,22 @@ def readAudio():
 
 
 
-while True:
-	audio = readAudio()
-	textTransform(audio,r)
-	# saveAudio(audio, x)
-	
+def main():
+	run_event = threading.Event()
+	run_event.set()
+	t = threading.Thread(target=createTimedEvents,args=(run_event,))
+	t.start()
+	try:
+		while True:
+			audio = readAudio()
+			textTransform(audio,r)
+			# saveAudio(audio, x)
+	except: # this is so that if it errors or the program is stopped the events thread is stopped too
+		pass
+	print("Closing event thread")
+	run_event.clear() # this should stop the thread while loop
+	t.join()
+
+
+if __name__ == '__main__':
+	main()
