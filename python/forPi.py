@@ -1,3 +1,16 @@
+
+# /etc/init.d/forPi.py
+### BEGIN INIT INFO
+# Provides:          forPi.py
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+
+
 # later add this to crontab by doing sudo crontab -e
 # then putting this at the bottom 
 # @reboot python3 /home/pi/Desktop/exemple.py &
@@ -43,27 +56,33 @@ def listen(source, audio):
 
 
 
-try: # connect to PC
-	ssh = paramiko.SSHClient()
-	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
-	ssh.connect("172.20.4.29","22","jhala","Tigerandzues")
-	sftp = ssh.open_sftp()
-except: # this will fail if the PC is not in the same network. 
-	print("Could not connect")
-	quit()
+
+def main():
+	try: # connect to PC
+		ssh = paramiko.SSHClient()
+		ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
+		ssh.connect("172.20.4.29","22","jhala","Tigerandzues")
+		sftp = ssh.open_sftp()
+	except: # this will fail if the PC is not in the same network. 
+		print("Could not connect")
+		quit()
 
 
-with sr.Microphone() as source:
-	x = 0
-	audio[0] = r.listen(source)
-	while True:
-		listen(source,audio)
-		# t = threading.Thread(target=listen, args=(source,audio,))
-		# t.start()
-		
-		saveAudio(audio[0], x)
-		sendAudio(sftp, x)
-		audio[0] = ""
-		
-		x += 1
-		# t.join()
+	with sr.Microphone() as source:
+		x = 0
+		audio[0] = r.listen(source)
+		while True:
+			listen(source,audio)
+			# t = threading.Thread(target=listen, args=(source,audio,))
+			# t.start()
+			
+			saveAudio(audio[0], x)
+			sendAudio(sftp, x)
+			audio[0] = ""
+			
+			x += 1
+			# t.join()
+
+if __name__ == '__main__':
+	main()
+
