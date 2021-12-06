@@ -5,7 +5,8 @@ import subprocess
 # more keys here: https://pythonhosted.org/pynput/keyboard.html#pynput.keyboard.Key
 from word2number import w2n
 import os
-from Events import createTimedEvents
+import Events
+import EventClasses
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -187,18 +188,24 @@ def readAudio():
 def main():
 	run_event = threading.Event()
 	run_event.set()
-	t = threading.Thread(target=createTimedEvents,args=(run_event,))
+	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
 	t.start()
+
+	# Events.eventChanges.append(EventClasses.EventChange("calendar", "add", ["Get new parking permit", "December 30 2021", ["9am",""]]))
+	# Events.eventChanges.append(EventClasses.EventChange("calendar", "remove", ["something from to at 11am"]))
+	
 	try:
 		while True:
 			audio = readAudio()
 			textTransform(audio,r)
+			checkTimedEvents(events)
 			# saveAudio(audio, x)
-	except: # this is so that if it errors or the program is stopped the events thread is stopped too
+	except:
 		pass
-	print("Closing event thread")
-	run_event.clear() # this should stop the thread while loop
+	print("Stopping event thread")
+	run_event.clear()
 	t.join()
+	
 
 
 if __name__ == '__main__':
