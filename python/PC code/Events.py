@@ -17,7 +17,6 @@ def createTimedEvents(run_event): # this is a thread
 	# this should be a list of pairs where [0] is the name and [1] is the time it should starts
 	events = [EventClasses.Calendar()] 
 	
-
 	while run_event.is_set():
 		checkTimedEvents(events)
 		if (len(eventChanges) != 0):
@@ -25,6 +24,7 @@ def createTimedEvents(run_event): # this is a thread
 				for event in events:
 					if (event.name == eventChange.name):
 						# this is the event that has a change
+						print("here")
 						event.makeChange(eventChange)
 			eventChanges = []
 

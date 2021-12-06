@@ -47,7 +47,7 @@ class Calendar(Event):
 		CLIENT_FILE = 'CalendarAddress.json'
 		self.service = Create_Service(CLIENT_FILE, API_NAME, API_VERSION, SCOPES, 'x')
 		self.refresh(True) # force it to refresh the first time 
-		self.printCalendarItems()
+		# self.printCalendarItems()
 		
 
 	# will print all the current events in self.events
@@ -70,11 +70,12 @@ class Calendar(Event):
 		return False
 
 	def addCalendarItem(self,name,date,startTime="8am", endTime=""):
+		print("here")
 		text = '{} on {} {}{}'.format(name, date,startTime,"-"+endTime)
-		self.service.events().quickAdd(
+		newEvent = self.service.events().quickAdd(
 		    calendarId='primary',
 		    text=text.format(date,time)).execute()
-
+		print(newEvent)
 	
 
 	# will refresh the self.events list

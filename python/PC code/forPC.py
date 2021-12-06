@@ -184,26 +184,52 @@ def readAudio():
 			pass
 
 
+# name,date,starttime,endtime
+def calendarAdd(name,date,startTime="8am",endTime="8am"):
+	Events.eventChanges.append(EventClasses.EventChange("calendar", "add", [name, date, [startTime, endTime]]))
+	
+	
+
+def calendarRemove(name):
+	Events.eventChanges.append(EventClasses.EventChange("calendar", "remove", [name]))
 
 def main():
 	run_event = threading.Event()
 	run_event.set()
 	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
 	t.start()
+	# add [name] to my calendar for tomorrow
+	# add [name] to tomorrows schedule at 8am
+	# add [name] tomorrow from 8 to 10am 
+	calendarAdd("thing", "tomorrow")
+	# calendarRemove("Something")
+	import time
+	time.sleep(1)
 
-	# Events.eventChanges.append(EventClasses.EventChange("calendar", "add", ["Get new parking permit", "December 30 2021", ["9am",""]]))
-	# Events.eventChanges.append(EventClasses.EventChange("calendar", "remove", ["something from to at 11am"]))
+	run_event.clear()
+	t.join()
+
+def main1():
+	run_event = threading.Event()
+	run_event.set()
+	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
+	t.start()
+
+	# calendarAdd("Get new parking permit", "December 30", "9am")
+	# calendarRemove("Something")
 	
 	try:
 		while True:
 			audio = readAudio()
 			textTransform(audio,r)
-			checkTimedEvents(events)
 			# saveAudio(audio, x)
-	except:
+	except KeyboardInterrupt as e:
 		pass
+	except:
+		print("Other error")
 	print("Stopping event thread")
 	run_event.clear()
+
 	t.join()
 	
 
