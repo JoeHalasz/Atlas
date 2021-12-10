@@ -24,7 +24,6 @@ def createTimedEvents(run_event): # this is a thread
 				for event in events:
 					if (event.name == eventChange.name):
 						# this is the event that has a change
-						print("here")
 						event.makeChange(eventChange)
 			eventChanges = []
 

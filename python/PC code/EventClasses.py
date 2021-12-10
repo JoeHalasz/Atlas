@@ -70,12 +70,10 @@ class Calendar(Event):
 		return False
 
 	def addCalendarItem(self,name,date,startTime="8am", endTime=""):
-		print("here")
-		text = '{} on {} {}{}'.format(name, date,startTime,"-"+endTime)
+		text = '{} {} {}{}'.format(name, date,startTime,"-"+endTime)
 		newEvent = self.service.events().quickAdd(
 		    calendarId='primary',
 		    text=text.format(date,time)).execute()
-		print(newEvent)
 	
 
 	# will refresh the self.events list
@@ -103,7 +101,7 @@ class Calendar(Event):
 			date = change.changes[1]
 			startTime = change.changes[2][0]
 			endTime = change.changes[2][1]
-			print("Adding {} to your schedule on {} {}{}".format(name, date,startTime,"-"+endTime))
+			print("Adding {} to your schedule {} {}{}".format(name, date,startTime,"-"+endTime))
 			self.addCalendarItem(name, date)
 		elif (change.changeType == "remove"):
 			print("Attempting to remove {} from your schedule.".format(name))

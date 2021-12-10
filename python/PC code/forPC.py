@@ -7,6 +7,7 @@ from word2number import w2n
 import os
 import Events
 import EventClasses
+import datetime
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -17,7 +18,7 @@ stop = False
 commands = ["open", "start taking note", "take a note", 
 			"write this down", "type this", "stop listening", 
 			"start typing", "press enter", "save",
-			"close window", "refresh page"]
+			"close window", "refresh page", "remind me to"]
 
 stopTypingTriggers = ["stop writing", "stop typing", "end note", "stop taking note"]
 
@@ -98,63 +99,95 @@ def openApplication(commandParams):
 		subprocess.call('C:\\Program Files\\Unity Hub\\Unity Hub.exe')
 
 
-
-def textTransform(audio, r):
-	global typing
+def getText(audio, r):
 	try:
 		if audio != "":
 			text = r.recognize_google(audio) # this line will error if the download has not finished yet.
-			# r.recognize_sphinx(audio) # this is offline 
-			if text == "stop listening":
-				print("Good Bye")
-				quit()
-			if text != "":
-				print(text)
-				if typing:
-					typeWords(text)
-				elif len(text) > 1:
-					text = text.lower()
-					for c in commands:
-						if c in text:
-							helper = text.split(c + " ", 1)
-							command = c
-							commandParams = ""
-							if len(helper) > 1:
-								commandParams = helper[1]
-							if command == "open":
-								t = threading.Thread(target=openApplication, args=(commandParams,))
-								t.start()
-							elif command == "start taking note" or command == "write this down" or command == "take a note":
-								t = threading.Thread(target=openApplication, args=("sublime",))
-								t.start()
-								typing = True
-								if commandParams != "": # type anything they say after the command if its not in another sentence
-									typeWords(commandParams)
-							elif command == "type this" or command == "start typing":
-								typing = True
-								if commandParams != "": # type anything they say after the command if its not in another sentence
-									typeWords(commandParams)
-							elif command == "save" and text == "save":
-								keys.press(Key.ctrl_l)
-								keys.press("s")
-								keys.release(Key.ctrl_l)
-								keys.release("s")
-							elif command == "press enter":
-								keys.press(Key.enter)
-								keys.release(Key.enter)
-							elif command == "close window":
-								keys.press(Key.alt)
-								keys.press(Key.f4)
-								keys.release(Key.alt)
-								keys.release(Key.f4)
-							elif command == "refresh page":
-								keys.press(Key.f5)
-								keys.release(Key.f5)
-							break; 
-
+			# text = r.recognize_sphinx(audio) # this is offline 
+			return text
 	except sr.UnknownValueError as e:
 		pass
-	
+	return None
+
+
+def textTransform(text):
+	global typing
+	if text != None:
+		if text == "stop listening":
+			print("Good Bye")
+			raise Exception("Quit")
+		if text != "":
+			print(text)
+			if typing:
+				typeWords(text)
+			elif len(text) > 1:
+				text = text.lower()
+				for c in commands:
+					if c in text: # if any of the commands are in the text
+						helper = text.split(c + " ", 1)
+						command = c
+						commandParams = ""
+						if len(helper) > 1:
+							commandParams = helper[1]
+						if command == "open":
+							t = threading.Thread(target=openApplication, args=(commandParams,))
+							t.start()
+						elif command == "start taking note" or command == "write this down" or command == "take a note":
+							t = threading.Thread(target=openApplication, args=("sublime",))
+							t.start()
+							typing = True
+							if commandParams != "": # type anything they say after the command if its not in another sentence
+								typeWords(commandParams)
+						elif command == "type this" or command == "start typing":
+							typing = True
+							if commandParams != "": # type anything they say after the command if its not in another sentence
+								typeWords(commandParams)
+						elif command == "save" and text == "save":
+							keys.press(Key.ctrl_l)
+							keys.press("s")
+							keys.release(Key.ctrl_l)
+							keys.release("s")
+						elif command == "press enter":
+							keys.press(Key.enter)
+							keys.release(Key.enter)
+						elif command == "close window":
+							keys.press(Key.alt)
+							keys.press(Key.f4)
+							keys.release(Key.alt)
+							keys.release(Key.f4)
+						elif command == "refresh page":
+							keys.press(Key.f5)
+							keys.release(Key.f5)
+						elif command == "remind me to":
+							# remind me to [name] in 2 days at ____
+							split = commandParams.split(" in ", 1) # this will split at the last one 
+							if (len(split) > 1): # that means the word "in" splits the name and when to add it
+								name = split[0]
+								rest = split[1]
+								if "days" in rest or "day" in rest:
+									rest = rest.replace(" days", "").replace(" day","") # delete the word days or day
+									split2 = rest.split(" at", 1) # split by " at" so we can split the days and the time
+									addDays = split2[0]
+									wantedDate = datetime.datetime.today() + datetime.timedelta(days=int(addDays))
+									wantedDate = datetime.datetime.strptime(str(wantedDate).split(".")[0], '%Y-%m-%d %H:%M:%S')
+									wantedDate = wantedDate.strftime('%m/%d/%y')
+									wantedDate = "on "+ str(wantedDate)
+									if (len(split2) > 1): # this means there was an "at" and the user specified a time
+										time = split2[1]
+										time = time.replace(" at", "")
+										calendarAdd(name, wantedDate, time)
+									else:
+										calendarAdd(name, wantedDate)
+							# TODO remind me to [name] on the 5th
+							split = commandParams.split(" on ", 1) # this will split at the last one 
+							elif (len(split) > 1):
+								name = split[0]
+								rest = split[1]
+								# todo finish this
+							# TODO any other formats
+						break;
+
+
 
 
 def saveAudio(audio, num):
@@ -185,7 +218,7 @@ def readAudio():
 
 
 # name,date,starttime,endtime
-def calendarAdd(name,date,startTime="8am",endTime="8am"):
+def calendarAdd(name,date,startTime="8am",endTime=""):
 	Events.eventChanges.append(EventClasses.EventChange("calendar", "add", [name, date, [startTime, endTime]]))
 	
 	
@@ -200,9 +233,11 @@ def main():
 	t.start()
 	# add [name] to my calendar for tomorrow
 	# add [name] to tomorrows schedule at 8am
-	# add [name] tomorrow from 8 to 10am 
-	calendarAdd("thing", "tomorrow")
-	# calendarRemove("Something")
+	# add [name] tomorrow from 8 to 10am
+	# remind me to [name] in 2 days 
+	# remind me to [name] on the 5th
+	# calendarAdd("thing", "on 12/07/21")
+	# calendarRemove("thing")
 	import time
 	time.sleep(1)
 
@@ -221,11 +256,12 @@ def main1():
 	try:
 		while True:
 			audio = readAudio()
-			textTransform(audio,r)
+			textTransform(getText(audio,r))
 			# saveAudio(audio, x)
 	except KeyboardInterrupt as e:
 		pass
-	except:
+	except Exception as e:
+		print(e)
 		print("Other error")
 	print("Stopping event thread")
 	run_event.clear()
