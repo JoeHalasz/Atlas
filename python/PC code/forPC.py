@@ -5,9 +5,10 @@ import subprocess
 # more keys here: https://pythonhosted.org/pynput/keyboard.html#pynput.keyboard.Key
 from word2number import w2n
 import os
-import Events
-import EventClasses
+import traceback
+
 import datetime
+from parsing import *
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -18,7 +19,9 @@ stop = False
 commands = ["open", "start taking note", "take a note", 
 			"write this down", "type this", "stop listening", 
 			"start typing", "press enter", "save",
-			"close window", "refresh page", "remind me to"]
+			"close window", "refresh page", # 
+			"remind me to", "I have to","you have to" # calendar commands
+			]  
 
 stopTypingTriggers = ["stop writing", "stop typing", "end note", "stop taking note"]
 
@@ -123,7 +126,7 @@ def textTransform(text):
 			elif len(text) > 1:
 				text = text.lower()
 				for c in commands:
-					if c in text: # if any of the commands are in the text
+					if c.lower() in text: # if any of the commands are in the text
 						helper = text.split(c + " ", 1)
 						command = c
 						commandParams = ""
@@ -158,33 +161,8 @@ def textTransform(text):
 						elif command == "refresh page":
 							keys.press(Key.f5)
 							keys.release(Key.f5)
-						elif command == "remind me to":
-							# remind me to [name] in 2 days at ____
-							split = commandParams.split(" in ", 1) # this will split at the last one 
-							if (len(split) > 1): # that means the word "in" splits the name and when to add it
-								name = split[0]
-								rest = split[1]
-								if "days" in rest or "day" in rest:
-									rest = rest.replace(" days", "").replace(" day","") # delete the word days or day
-									split2 = rest.split(" at", 1) # split by " at" so we can split the days and the time
-									addDays = split2[0]
-									wantedDate = datetime.datetime.today() + datetime.timedelta(days=int(addDays))
-									wantedDate = datetime.datetime.strptime(str(wantedDate).split(".")[0], '%Y-%m-%d %H:%M:%S')
-									wantedDate = wantedDate.strftime('%m/%d/%y')
-									wantedDate = "on "+ str(wantedDate)
-									if (len(split2) > 1): # this means there was an "at" and the user specified a time
-										time = split2[1]
-										time = time.replace(" at", "")
-										calendarAdd(name, wantedDate, time)
-									else:
-										calendarAdd(name, wantedDate)
-							# TODO remind me to [name] on the 5th
-							split = commandParams.split(" on ", 1) # this will split at the last one 
-							elif (len(split) > 1):
-								name = split[0]
-								rest = split[1]
-								# todo finish this
-							# TODO any other formats
+						elif command == "remind me to" or command == "I have to" or command == "you have to":
+							remindMeToParsing(text.replace(command.lower()+" ", ""))
 						break;
 
 
@@ -217,14 +195,6 @@ def readAudio():
 			pass
 
 
-# name,date,starttime,endtime
-def calendarAdd(name,date,startTime="8am",endTime=""):
-	Events.eventChanges.append(EventClasses.EventChange("calendar", "add", [name, date, [startTime, endTime]]))
-	
-	
-
-def calendarRemove(name):
-	Events.eventChanges.append(EventClasses.EventChange("calendar", "remove", [name]))
 
 def main():
 	run_event = threading.Event()
@@ -260,9 +230,8 @@ def main1():
 			# saveAudio(audio, x)
 	except KeyboardInterrupt as e:
 		pass
-	except Exception as e:
-		print(e)
-		print("Other error")
+	except:
+		print(traceback.format_exc())
 	print("Stopping event thread")
 	run_event.clear()
 
