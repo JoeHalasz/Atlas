@@ -18,7 +18,7 @@ def calendarRemove(name):
 	Events.eventChanges.append(EventClasses.EventChange("calendar", "remove", [name]))
 
 
-def getDate(addDays):
+def addDays(addDays):
 	wantedDate = datetime.datetime.today() + datetime.timedelta(days=int(addDays))
 	wantedDate = datetime.datetime.strptime(str(wantedDate).split(".")[0], '%Y-%m-%d %H:%M:%S')
 	return formatDate(wantedDate)
@@ -116,7 +116,7 @@ def getDateWithDayMonth(day, month):
 # this means it can be used for any commands that fit that format.
 # the exampe one is "remind me to" but this could also be something like
 # "I have to" 
-def remindMeToParsing(textWithCommand, command):
+def remindMeToParsing2(textWithCommand, command):
 	# TODO change this to always get the text right after "at" or "from" as the time
 	# TODO change this to always get the date right after "on" as the date
 	# TODO change this to always get the name as what ever is left after removing "to", "from", "on", and the time and date
@@ -179,3 +179,105 @@ def remindMeToParsing(textWithCommand, command):
 
 		# todo finish this
 	# TODO any other formats
+
+
+
+# ---------------------------------- NEW VERSION --------------------------------------------
+
+# this will return the start time and the end time if they exist in the string.
+# it will also change the text so that it does not have the time and the time trigger
+# word in the text 
+def getTime(text):
+	startTime = ""
+	endTime = ""
+	rest = ""
+	text.replace(" at night", "pm")
+	text.replace(" pm", "pm")
+	text.replace(" am", "am")
+	if "at " in text: # there is an "at" in the text somewhere
+		split = text.split(" ")
+		x = 0
+		while x < len(split):
+			if split[x] == "at":
+				startTime = split[x+1]
+				if not "pm" in startTime and not "am" in startTime:
+					if "tonight" in text or "tomorrow night" in text:
+						startTime += "pm"
+				x += 1 # skip the next part with the number in it
+			else:
+				rest += split[x] + " "
+			x+=1
+		text = rest
+	elif "from " in text: # there is a "from" in the text somewhere
+		split = text.split(" ")
+		x = 0
+		while x < len(split):
+			if split[x] == "from":
+				startTime = split[x+1]
+				endTime = split[x+3]
+				if not "pm" in startTime and not "am" in startTime:
+					if "tonight" in text or "tomorrow night" in text:
+						startTime += "pm"
+						endTime += "pm"
+				x += 3 # skip the next part with the number in it
+			else:
+				rest += split[x] + " "
+			x+=1
+		text = rest
+	return text, startTime, endTime
+
+
+def getDaysFromToday(addDays):
+	wantedDate = datetime.datetime.today() + datetime.timedelta(days=int(addDays))
+	wantedDate = datetime.datetime.strptime(str(wantedDate).split(".")[0], '%Y-%m-%d %H:%M:%S')
+	return formatDate(wantedDate)
+
+
+def getDate(text):
+	rest = ""
+	wantedDate = ""
+	if "tomorrow" in text:
+		wantedDate = getDaysFromToday(1)
+		text = text.replace("tomorrow night", "")
+		text = text.replace("tomorrow", "")
+	elif "today" in text or "tonight" in text:
+		wantedDate = getDaysFromToday(0)
+		text = text.replace("today", "")
+		text = text.replace("tonight","")
+	else:
+		
+		if "day" in text:
+			split = text.split(" ")
+			x = 0
+			while x < len(split):
+				if split[x] == "in":
+					addDays = split[x+1]
+					wantedDate = getDaysFromToday(addDays)
+					x += 2
+				else:
+					rest += split[x] + " "
+				x += 1
+			text = rest
+		elif "week" in text 
+
+	return text, wantedDate
+
+
+
+def remindMeToParsing(text, command):
+	
+	# TODO change this to always get the text right after "at" or "from" as the time
+	# TODO change this to always get the date right after "on" as the date
+	# TODO change this to always get the name as what ever is left after removing "to", "from", "on", and the time and date
+	
+	text, startTime, endTime = getTime(text)
+	# there will not be any time stuff in text anymore 
+	text, wantedDate = getDate(text)
+	text = text.replace(command.lower() + " ","")
+	if text[0] == " ":
+		text = text[1:-1]
+	print(wantedDate)
+	print(startTime, endTime)
+	print(text)
+
+

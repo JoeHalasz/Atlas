@@ -162,7 +162,7 @@ def textTransform(text):
 							keys.press(Key.f5)
 							keys.release(Key.f5)
 						elif command == "remind me to" or command == "I have to" or command == "you have to":
-							remindMeToParsing(text)
+							remindMeToParsing(text, command)
 						break;
 
 
