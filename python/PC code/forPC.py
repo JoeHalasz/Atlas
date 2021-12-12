@@ -162,7 +162,7 @@ def textTransform(text):
 							keys.press(Key.f5)
 							keys.release(Key.f5)
 						elif command == "remind me to" or command == "I have to" or command == "you have to":
-							remindMeToParsing(text.replace(command.lower()+" ", ""))
+							remindMeToParsing(text)
 						break;
 
 
@@ -207,9 +207,9 @@ def main():
 	# remind me to [name] in 2 days 
 	# remind me to [name] on the 5th
 	# calendarAdd("thing", "on 12/07/21")
-	# calendarRemove("thing")
+	# calendarRemove("do homework")
 	import time
-	time.sleep(1)
+	time.sleep(.5)
 
 	run_event.clear()
 	t.join()

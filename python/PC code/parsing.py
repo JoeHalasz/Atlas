@@ -29,6 +29,7 @@ def formatDate(wantedDate):
 
 
 def checkTime(name, text, wantedDate): # TODO add from time1 to time2
+	print(name)
 	if type(wantedDate) != str:
 		wantedDate = formatDate(wantedDate)
 	split = wantedDate.split("/")
@@ -49,9 +50,11 @@ def checkTime(name, text, wantedDate): # TODO add from time1 to time2
 		return
 	split = text.split(" from ")
 	if len(split) > 1: # same as above except it has a start and end time after "from"
-		split2 = text.split(" to ")
+		split2 = split[1].split(" to ")
 		beforeTime = split2[0]
 		afterTime = split2[1]
+		print()
+		print(beforeTime)
 		calendarAdd(name, wantedDate, beforeTime, afterTime)
 		return
 	
@@ -113,8 +116,12 @@ def getDateWithDayMonth(day, month):
 # this means it can be used for any commands that fit that format.
 # the exampe one is "remind me to" but this could also be something like
 # "I have to" 
-def remindMeToParsing(text):
+def remindMeToParsing(textWithCommand, command):
+	# TODO change this to always get the text right after "at" or "from" as the time
+	# TODO change this to always get the date right after "on" as the date
+	# TODO change this to always get the name as what ever is left after removing "to", "from", "on", and the time and date
 	try:
+		text = textWithCommand.replace(command+" ", "")
 		# remind me to [name] in 2 days at ____
 		split = text.split(" in ", 1) # this will split at the last one 
 		if (len(split) > 1): # that means the word "in" splits the name and when to add it
@@ -152,7 +159,10 @@ def remindMeToParsing(text):
 			split = text.split(" today",1)
 			wantedDate = getDate(0)
 			checkTime(split[0],split[1], wantedDate)
-			return
+			return			
+
+
+
 		for month in MONTHS:
 			split = text.split(month,1)
 			if len(split) > 1:
@@ -160,6 +170,7 @@ def remindMeToParsing(text):
 				rest = text.replace(name,"")
 				wantedDate = getDateWithMonthFirst(rest)
 				checkTime(name, text, wantedDate)
+
 
 	except ValueError:
 		print("Something about the entered date does not work.")

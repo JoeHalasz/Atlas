@@ -73,7 +73,6 @@ class Calendar(Event):
 		text = '{} {} {}'.format(name, date,startTime)
 		if endTime != "":
 			text+="-"+endTime
-		print(text)
 		newEvent = self.service.events().quickAdd(
 		    calendarId='primary',
 		    text=text.format(date,time)).execute()
