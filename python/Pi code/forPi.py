@@ -1,6 +1,6 @@
 
 # later add this to crontab by doing sudo crontab -e
-# @reboot python3 /home/Joe/forPi.py &
+# @reboot python3 /home/pi/forPi.py &
 
 import speech_recognition as sr
 import threading
