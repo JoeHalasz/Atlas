@@ -28,7 +28,9 @@ def getTime(text):
 	rest = ""
 	text = text.replace(" at night", "pm")
 	text = text.replace(" pm", "pm")
+	text = text.replace(" p.m.", "pm")
 	text = text.replace(" am", "am")
+	text = text.replace(" a.m.", "am")
 	if "at " in text: # there is an "at" in the text somewhere
 		split = text.split(" ")
 		x = 0
@@ -147,9 +149,9 @@ def remindMeToParsing(text, command):
 		text, wantedDate = getDate(text)
 		text = text.replace(command.lower() + " ","")
 		if text[0] == " ": # get rid of space at beggining
-			text = text[1:-1]
+			text = text[1:]
 		if text[-1] == " ": # get rid of space at the end
-			text = text[0:-2] 
+			text = text[0:-1] 
 		calendarAdd(text, wantedDate, startTime, endTime)
 	except ValueError:
 		print("Something about the entered date does not work.")

@@ -1,27 +1,13 @@
 
-# /etc/init.d/forPi.py
-### BEGIN INIT INFO
-# Provides:          forPi.py
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Start daemon at boot time
-# Description:       Enable service provided by daemon.
-### END INIT INFO
-
-
 # later add this to crontab by doing sudo crontab -e
-# then putting this at the bottom 
-# @reboot python3 /home/pi/Desktop/exemple.py &
-
-# if this doesnt work ( it probably wont ) then go to this site 
-# https://raspberrypi.stackexchange.com/questions/8734/execute-script-on-start-up
+# @reboot python3 /home/Joe/forPi.py &
 
 import speech_recognition as sr
 import threading
 import paramiko
 import os
+import traceback
+import time 
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -58,19 +44,25 @@ def listen(source, audio):
 
 
 def main():
-	try: # connect to PC
-		ssh = paramiko.SSHClient()
-		ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
-		ssh.connect("172.20.4.29","22","jhala","Tigerandzues")
-		sftp = ssh.open_sftp()
-	except: # this will fail if the PC is not in the same network. 
-		print("Could not connect")
-		quit()
+	print("trying to connect")
+	for x in range(10):
+		try: # connect to PC
+			ssh = paramiko.SSHClient()
+			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
+			ssh.connect("192.168.1.240","22","jhala","Tigerandzues")
+			sftp = ssh.open_sftp()
+			break
+		except: # this will fail if the PC is not in the same network. 
+			print("Could not connect")
+			time.sleep(5)
+		if x == 9:
+			quit()
 
-
+	print("connected")
 	with sr.Microphone() as source:
 		x = 0
-		audio[0] = r.listen(source)
+		print("Listening")
+		# audio[0] = r.listen(source)
 		while True:
 			listen(source,audio)
 			# t = threading.Thread(target=listen, args=(source,audio,))
@@ -83,6 +75,14 @@ def main():
 			x += 1
 			# t.join()
 
+
+
 if __name__ == '__main__':
-	main()
+	try:
+		main()
+	except:
+		print(traceback.format_exc())
+		f = open("/home/pi/error.txt", "w+")
+		f.write(traceback.format_exc())
+		f.close()
 

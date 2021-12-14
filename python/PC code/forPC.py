@@ -21,7 +21,7 @@ commands = ["open", "start taking note", "take a note",
 			"start typing", "press enter", "save",
 			"close window", "refresh page", # 
 			"remind me to", "I have to","you have to" # calendar commands
-			]  
+			]
 
 stopTypingTriggers = ["stop writing", "stop typing", "end note", "stop taking note"]
 
@@ -196,7 +196,7 @@ def readAudio():
 
 
 
-def main():
+def main2():
 	run_event = threading.Event()
 	run_event.set()
 	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
@@ -214,7 +214,7 @@ def main():
 	run_event.clear()
 	t.join()
 
-def main1():
+def main():
 	run_event = threading.Event()
 	run_event.set()
 	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
