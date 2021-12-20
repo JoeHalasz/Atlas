@@ -46,9 +46,7 @@ def listen(source, audio):
 def getId(server):
 	try:
 		with open("id.txt", "r") as f:
-			print("i have an ID.")
 			piId = f.readline()
-			print("it is ", piId)
 			server.send(piId.encode('utf-8'))
 			piId = server.recv(1024).decode('utf-8')
 	except Exception:
@@ -56,7 +54,7 @@ def getId(server):
 		piId = server.recv(1024).decode('utf-8')
 		with open("id.txt", "w") as f:
 			f.write(piId)
-	
+	print("My ID is", piId)
 	return piId
 
 	

@@ -39,13 +39,13 @@ class Calendar(Event):
 	# create a calendar item
 	# creates an API connection with Google calendar 
 	# gets all the events currently in the calendar
-	def __init__(self, piId):
+	def __init__(self):
 		super().__init__("calendar", 60) # this means that every 60 seconds it will be refreshed
 		API_NAME = 'calendar'
 		API_VERSION = 'v3'
 		SCOPES = ['https://www.googleapis.com/auth/calendar']
 		CLIENT_FILE = 'CalendarAddress.json'
-		self.service = Create_Service(CLIENT_FILE, API_NAME, API_VERSION, SCOPES, piId)
+		self.service = Create_Service(CLIENT_FILE, API_NAME, API_VERSION, SCOPES)
 		self.refresh(True) # force it to refresh the first time 
 		# self.printCalendarItems()
 		
