@@ -2,6 +2,11 @@ from firstTimeConnection import firstTimeConnection
 import socket
 import threading
 
+
+connectedPCs = []
+connectedPIs = []
+
+
 # this will get the PI's id or create one for it if it doesnt have one, and send it back to the pi
 def getID(connection):
 	data = connection.recv(1024) # should be just an ID
@@ -17,16 +22,38 @@ def getID(connection):
 		return piId
 
 
+def handlePC(connection):
+	global connectedPCs
+	global connectedPIs
+	connection.settimeout(5) # 5 seconds
+	try:
+		while True:
+			print("sending")
+			connection.send("connected?".encode('utf-8'))
+			print("waiting for recv")
+			data = connection.recv(1024)
+			print(connectedPCs)
+	except: # this means that it disconnected
+		print("disconnected")
+		for i in range(len(connectedPCs)): # remove it from the connected lists
+			c = connectedPCs[i]
+			if c[0] == connection:
+				connectedPCs.pop(i)
+	print(connectedPCs)
 
 
 def handlePI(connection):
+	global connectedPCs
+	global connectedPIs
 	# get the PI's ID
 	piId = getID(connection)
+	# check if that ID has any computers to connect to
 
-	
-	
+
 
 def main():
+	global connectedPCs
+	global connectedPIs
 	threads = []
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.bind(("localhost", 17489))
@@ -37,12 +64,33 @@ def main():
 		connection, new_addr = s.accept()
 		
 		print('Got connection from', new_addr)
-
-		t = threading.Thread(target=handlePI, args=(connection,)) 
-		t.start() 
+		machineType = connection.recv(1024).decode('utf-8') # this should either be PC or PI
+		print("machineType", machineType)
+		if machineType == 'PC':
+			connectedPCs.append([connection, new_addr])
+			t = threading.Thread(target=handlePC, args=(connection,))
+			t.start()
+		elif machineType == 'PI':
+			connectedPIs.append([connection, new_addr])
+			t = threading.Thread(target=handlePI, args=(connection,)) 
+			t.start() 
 
 		threads.append(t)
 
 
 if __name__ == '__main__':
 	main()
+
+
+
+	# print("trying to connect")
+	# try: # connect to PC
+	# 	ssh = paramiko.SSHClient()
+	# 	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
+	# 	ssh.connect("192.168.1.240","22","jhala","Tigerandzues")
+	# 	sftp = ssh.open_sftp()
+	# except: # this will fail if the PC is not in the same network. 
+	# 	print("Could not connect")
+	# 	quit()
+
+	# print("connected")

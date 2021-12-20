@@ -9,6 +9,7 @@ import traceback
 
 import datetime
 from parsing import *
+import socket
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -214,10 +215,34 @@ def main2():
 	run_event.clear()
 	t.join()
 
+
+
+# constantly tell the server we are still connected
+def ensureConnected(server, run_event):
+	while run_event.is_set():
+		print("waiting for recv")
+		data = server.recv(1024)
+		print("sending")
+		server.send("yes".encode('utf-8'))
+		
+
+
+# this will connect to the server and ensure that the server knows we are still connected
+def serverConnection(run_event):
+	serverIp = "localhost"
+	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	server.connect((serverIp, 17489))
+	server.send("PC".encode('utf-8'))
+	t = threading.Thread(target=ensureConnected, args=(server, run_event,))
+	t.start()
+
+
 def main():
 
 	run_event = threading.Event()
 	run_event.set()
+	serverConnection(run_event)
+	
 	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
 	t.start()
 

@@ -63,13 +63,12 @@ def getId(server):
 def main():
 	print("trying to connect")
 	serverIp = "localhost"
-	
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.connect((serverIp, 17489))
+	server.send("PI".encode('utf-8'))
 
 	piId = getId(server)
 	print(piId)
-	quit()
 
 	with sr.Microphone() as source:
 		x = 0
