@@ -21,6 +21,3 @@ def firstTimeConnection():
 
 		return len(nums)+1
 			
-
-
-print(firstTimeConnection())
