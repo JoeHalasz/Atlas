@@ -6,9 +6,11 @@ import subprocess
 from word2number import w2n
 import os
 import traceback
+import socket
 
 import datetime
 from parsing import *
+from firstTimeConnection import firstTimeConnection
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -28,78 +30,7 @@ stopTypingTriggers = ["stop writing", "stop typing", "end note", "stop taking no
 audio = [""]
 typing = False
 
-keys = Controller()
 x = 0
-
-
-def typeWords(words):
-	global typing
-	done = False
-
-	for s in stopTypingTriggers:
-		if s in words:
-			done=True
-			words = words.replace(s, "")
-	
-	words = words.replace("next line", "next_line")
-	words = words.replace("press enter", "next_line")
-	words = words.replace("delete word", "delete_word")
-	words = words.replace("press backspace", "delete_word")
-	words = words.replace(". ", ".")
-	words = words.replace("Txt", "txt")
-	wordsList = words.split(" ")
-	print(wordsList)
-	if "delete" in wordsList: # check if user said "delete N words"
-		place = wordsList.index("delete")
-		try:
-			number = w2n.word_to_num(wordsList[place+1]) 
-			x = 0
-			while x < int(number):
-				keys.press(Key.ctrl_l)
-				keys.press(Key.backspace)
-				keys.release(Key.ctrl_l)
-				keys.release(Key.backspace)
-				x += 1
-			return
-		except:
-			pass
-
-	for word in wordsList:
-		if word == "next_line":
-			keys.press(Key.enter)
-			keys.release(Key.enter)
-		elif word == "delete_word":
-			keys.press(Key.ctrl_l)
-			keys.press(Key.backspace)
-			keys.release(Key.ctrl_l)
-			keys.release(Key.backspace)
-		else:
-			letters = list(word)
-			for l in letters:
-				keys.press(l)
-				keys.release(l)
-			if len(letters) > 0:
-				keys.press(Key.space)
-				keys.release(Key.space)
-	keys.press(Key.enter)
-	keys.release(Key.enter)
-	if done:
-		typing = False;
-		
-
-
-# TODO better way to do this might be to press the windows key and type it then press enter
-def openApplication(commandParams):
-	if "chrome" in commandParams:
-		subprocess.call('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
-	elif "sublime" in commandParams:
-		subprocess.call('C:\\Program Files\\Sublime Text 3\\sublime_text.exe')
-	elif "brave" in commandParams:
-		subprocess.call('C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe')
-	elif "git" in commandParams:
-		subprocess.call('C:\\Users\\jhala\\AppData\\Local\\GitHubDesktop\\GitHubDesktop.exe')
-	elif "unity" in commandParams:
-		subprocess.call('C:\\Program Files\\Unity Hub\\Unity Hub.exe')
 
 
 def getText(audio, r):
@@ -195,30 +126,30 @@ def readAudio():
 			pass
 
 
+# this will get the PI's id or create one for it if it doesnt have one, and send it back to the pi
+def getID(connection):
+	data = connection.recv(1024) # should be just an ID
+	if data:
+		data = data.decode('utf-8')
+		print(data)
+		if data == "-1":
+			piId = str(firstTimeConnection())
+		else:
+			piId = data
 
-def main2():
+		connection.send(piId.encode('utf-8'))
+		return piId
+
+
+
+
+def handlePI(connection):
+	# get the PI's ID
+	piId = getID(connection)
+
 	run_event = threading.Event()
 	run_event.set()
-	t = threading.Thread(target=Events.createTimedEvents, args=(run_event, 1))
-	t.start()
-	# add [name] to my calendar for tomorrow
-	# add [name] to tomorrows schedule at 8am
-	# add [name] tomorrow from 8 to 10am
-	# remind me to [name] in 2 days 
-	# remind me to [name] on the 5th
-	# calendarAdd("thing", "on 12/07/21")
-	# calendarRemove("do homework")
-	import time
-	time.sleep(.5)
-
-	run_event.clear()
-	t.join()
-
-def main():
-
-	run_event = threading.Event()
-	run_event.set()
-	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
+	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,piId,))
 	t.start()
 
 	# calendarAdd("Get new parking permit", "December 30", "9am")
@@ -238,6 +169,23 @@ def main():
 
 	t.join()
 	
+
+def main():
+	threads = []
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.bind(("localhost", 17489))
+	s.listen(5)
+	c = []
+	while True:
+		# Establish connection with client. 
+		connection, new_addr = s.accept()
+		
+		print('Got connection from', new_addr)
+
+		t = threading.Thread(target=handlePI, args=(connection,)) 
+		t.start() 
+
+		threads.append(t)
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import traceback
 
 run_event = threading.Event()
 run_event.set()
-t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
+t = threading.Thread(target=Events.createTimedEvents, args=(run_event,1))
 t.start()
 
 try:

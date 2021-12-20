@@ -8,6 +8,8 @@ import paramiko
 import os
 import traceback
 import time 
+from os.path import exists
+import socket
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -41,24 +43,36 @@ def listen(source, audio):
 	# 		pass
 
 
+def getId(server):
+	try:
+		with open("id.txt", "r") as f:
+			print("i have an ID.")
+			piId = f.readline()
+			print("it is ", piId)
+			server.send(piId.encode('utf-8'))
+			piId = server.recv(1024).decode('utf-8')
+	except Exception:
+		server.send("-1".encode('utf-8'))
+		piId = server.recv(1024).decode('utf-8')
+		with open("id.txt", "w") as f:
+			f.write(piId)
+	
+	return piId
+
+	
 
 
 def main():
 	print("trying to connect")
-	for x in range(10):
-		try: # connect to PC
-			ssh = paramiko.SSHClient()
-			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
-			ssh.connect("192.168.1.240","22","jhala","Tigerandzues")
-			sftp = ssh.open_sftp()
-			break
-		except: # this will fail if the PC is not in the same network. 
-			print("Could not connect")
-			time.sleep(5)
-		if x == 9:
-			quit()
+	serverIp = "localhost"
+	
+	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	server.connect((serverIp, 17489))
 
-	print("connected")
+	piId = getId(server)
+	print(piId)
+	quit()
+
 	with sr.Microphone() as source:
 		x = 0
 		print("Listening")
@@ -78,11 +92,4 @@ def main():
 
 
 if __name__ == '__main__':
-	try:
-		main()
-	except:
-		print(traceback.format_exc())
-		f = open("/home/pi/error.txt", "w+")
-		f.write(traceback.format_exc())
-		f.close()
-
+	main()

@@ -1,7 +1,6 @@
 from os.path import exists
 
 
-
 # this function should be called when a connection to a new PI is made for the first time
 # it will return what that PI's id should be set to
 def firstTimeConnection():

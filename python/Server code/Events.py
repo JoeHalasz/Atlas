@@ -11,11 +11,12 @@ def checkTimedEvents(events):
 
 
 
-def createTimedEvents(run_event): # this is a thread	
+def createTimedEvents(run_event, piId): # this is a thread	
 	global eventChanges
 	startTime = time.time()
 	# this should be a list of pairs where [0] is the name and [1] is the time it should starts
-	events = [EventClasses.Calendar()] 
+	print(piId)
+	events = [EventClasses.Calendar(piId)] 
 	
 	while run_event.is_set():
 		checkTimedEvents(events)

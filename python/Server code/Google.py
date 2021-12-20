@@ -7,7 +7,7 @@ from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from google.auth.transport.requests import Request
 
 
-def Create_Service(client_secret_file, api_name, api_version, *scopes, prefix=''):
+def Create_Service(client_secret_file, api_name, api_version, *scopes, piId):
     CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
     API_VERSION = api_version
@@ -16,7 +16,7 @@ def Create_Service(client_secret_file, api_name, api_version, *scopes, prefix=''
     cred = None
     working_dir = os.getcwd()
     token_dir = 'token files'
-    pickle_file = f'token_{API_SERVICE_NAME}_{API_VERSION}{prefix}.pickle'
+    pickle_file = f'token_{API_SERVICE_NAME}_{API_VERSION}_{piId}.pickle'
 
     ### Check if token dir exists first, if not, create the folder
     if not os.path.exists(os.path.join(working_dir, token_dir)):
@@ -55,4 +55,4 @@ if __name__ == '__main__':
     API_VERSION = 'v3'
     SCOPES = ['https://www.googleapis.com/auth/calendar']
     CLIENT_FILE = 'CalendarAddress.json'
-    service = Create_Service(CLIENT_FILE, API_NAME, API_VERSION, SCOPES, 'x')
+    service = Create_Service(CLIENT_FILE, API_NAME, API_VERSION, SCOPES,1)
