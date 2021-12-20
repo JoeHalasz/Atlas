@@ -52,6 +52,7 @@ def handlePI(connection):
 
 
 def main():
+	print("Starting server")
 	global connectedPCs
 	global connectedPIs
 	threads = []
