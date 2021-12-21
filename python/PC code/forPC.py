@@ -229,7 +229,7 @@ def ensureConnected(server, run_event):
 
 # this will connect to the server and ensure that the server knows we are still connected
 def serverConnection(run_event):
-	serverIp = "localhost"
+	serverIp = "192.168.1.241"
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.connect((serverIp, 17489))
 	server.send("PC".encode('utf-8'))
