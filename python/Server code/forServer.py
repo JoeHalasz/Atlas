@@ -66,17 +66,22 @@ def main():
 		
 		print('Got connection from', new_addr)
 		machineType = connection.recv(1024).decode('utf-8') # this should either be PC or PI
-		print("machineType", machineType)
 		if machineType == 'PC':
+			print("Its a PC")
 			connectedPCs.append([connection, new_addr])
 			t = threading.Thread(target=handlePC, args=(connection,))
 			t.start()
-		else:
+			threads.append(t)
+		elif machineType == 'PI':
+			print("Its a PI")
 			connectedPIs.append([connection, new_addr])
 			t = threading.Thread(target=handlePI, args=(connection,)) 
 			t.start() 
+			threads.append(t)
+		else:
+			print("Not a valid machine type")
 
-		threads.append(t)
+		
 
 
 if __name__ == '__main__':
