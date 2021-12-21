@@ -229,9 +229,9 @@ def ensureConnected(server, run_event):
 
 # this will connect to the server and ensure that the server knows we are still connected
 def serverConnection(run_event):
-	serverIp = "192.168.1.241"
+	serverIp = "71.105.82.137"
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	server.connect((serverIp, 17489))
+	server.connect((serverIp, 51152))
 	server.send("PC".encode('utf-8'))
 	t = threading.Thread(target=ensureConnected, args=(server, run_event,))
 	t.start()
