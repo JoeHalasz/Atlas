@@ -71,7 +71,7 @@ def main():
 			connectedPCs.append([connection, new_addr])
 			t = threading.Thread(target=handlePC, args=(connection,))
 			t.start()
-		elif machineType == 'PI':
+		else:
 			connectedPIs.append([connection, new_addr])
 			t = threading.Thread(target=handlePI, args=(connection,)) 
 			t.start() 
