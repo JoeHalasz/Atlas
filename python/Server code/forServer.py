@@ -50,12 +50,12 @@ def handlePI(connection):
 		piId = getID(connection)
 		# check if that ID has any computers to connect to
 		while True:
-			length = server.recv(4) # this should be the size of the next thing to recv
+			length = connection.recv(4) # this should be the size of the next thing to recv
 			b = b''
 			while length > 1024:
-				b += server.recv(1024)
+				b += connection.recv(1024)
 				length -= 1024
-			b += server.recv(length)
+			b += connection.recv(length)
 	except Exception as e:
 		print(e)
 

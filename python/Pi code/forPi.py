@@ -33,9 +33,9 @@ def saveAudio(audio, x):
 
 def sendAudio(server, audio):
 	print("sending audio")
-	b = bytes(audio)
+	b = audio.get_raw_data()
 	l = len(b)
-	server.send(int(l))
+	server.send(bytes(int(l)))
 	server.send(b)
 
 
