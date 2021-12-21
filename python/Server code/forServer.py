@@ -43,11 +43,22 @@ def handlePC(connection):
 
 
 def handlePI(connection):
-	global connectedPCs
-	global connectedPIs
-	# get the PI's ID
-	piId = getID(connection)
-	# check if that ID has any computers to connect to
+	try:
+		global connectedPCs
+		global connectedPIs
+		# get the PI's ID
+		piId = getID(connection)
+		# check if that ID has any computers to connect to
+		while True:
+			length = server.recv(4) # this should be the size of the next thing to recv
+			b = b''
+			while length > 1024:
+				b += server.recv(1024)
+				length -= 1024
+			b += server.recv(length)
+	except Exception as e:
+		print(e)
+
 
 
 

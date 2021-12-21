@@ -22,25 +22,25 @@ def saveAudio(audio, x):
 		with open("sound"+str(x)+".wav", "wb") as f:
 			f.write(audio.get_wav_data())
 
-def sendAudio(sftp, x):
-	print("sending audio", x)
-	try:
-		sftp.put("sound"+str(x)+".wav", "autorun/audioFiles/sound"+str(x)+".wav")
-	except FileNotFoundError:
-		pass # this means that the file was deleted too quickly for SFTP to react. Doesn't matter at all
-	os.remove("sound"+str(x)+".wav") # delete after use
+# def sendAudio(sftp, x):
+# 	print("sending audio", x)
+# 	try:
+# 		sftp.put("sound"+str(x)+".wav", "autorun/audioFiles/sound"+str(x)+".wav")
+# 	except FileNotFoundError:
+# 		pass # this means that the file was deleted too quickly for SFTP to react. Doesn't matter at all
+# 	os.remove("sound"+str(x)+".wav") # delete after use
+
+
+def sendAudio(server, audio):
+	print("sending audio")
+	b = bytes(audio)
+	l = len(b)
+	server.send(int(l))
+	server.send(b)
 
 
 def listen(source, audio):
 	audio[0] = r.listen(source)
-	# while True:
-
-	# 	try:
-			
-	# 		break
-	# 	except:
-	# 		print("Listening error")
-	# 		pass
 
 
 def getId(server):
@@ -68,7 +68,6 @@ def main():
 	server.send("PI".encode('utf-8'))
 
 	piId = getId(server)
-	print(piId)
 
 	with sr.Microphone() as source:
 		x = 0
@@ -79,8 +78,8 @@ def main():
 			# t = threading.Thread(target=listen, args=(source,audio,))
 			# t.start()
 			
-			saveAudio(audio[0], x)
-			sendAudio(sftp, x)
+			# saveAudio(audio[0], x)
+			sendAudio(server, audio[0])
 			audio[0] = ""
 			
 			x += 1
