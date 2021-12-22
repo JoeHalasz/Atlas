@@ -61,7 +61,7 @@ def handlePI(connection):
 				print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
 			print("download finished")
 			i = 0
-			while i < range(len(connectedPCs)):
+			while i < len(connectedPCs):
 				c = connectedPCs[i]
 				if c[0] == piId: # if they have the same ID
 					try:
