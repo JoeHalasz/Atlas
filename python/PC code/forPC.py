@@ -176,13 +176,13 @@ def saveAudio(audio, num):
 
 
 def getAudio(server):
-	strlen = connection.recv(8).decode("utf-8")
+	strlen = server.recv(8).decode("utf-8")
 	length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
 	print(length)
 	b = b''
 	while len(b) < length:
 		batch = min(4096, length)
-		newpart = connection.recv(batch)
+		newpart = server.recv(batch)
 		b += newpart
 		print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
 	print("download finished")

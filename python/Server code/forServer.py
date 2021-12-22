@@ -60,17 +60,20 @@ def handlePI(connection):
 				b += newpart
 				print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
 			print("download finished")
-			for i in range(len(connectedPCs)):
+			i = 0
+			while i < range(len(connectedPCs)):
 				c = connectedPCs[i]
 				if c[0] == piId: # if they have the same ID
 					try:
 						l = str(len(b) + 10000000) # add this so that the string is always the same size
 						server.send(l.encode("utf-8"))
 						server.send(b)
+						break
 					except: # this means that the PC was disconnected 
 						# delete this PC from the list and try another computer
 						connectedPCs.pop(i)
-						i-=1
+						continue
+				i+=1
 
 
 				
