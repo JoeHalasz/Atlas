@@ -190,7 +190,8 @@ def getAudio(server):
 			print("download finished")
 			audio = AudioData(b)
 			return audio
-		except Exception as e:
+		except Exception:
+			e = traceback.format_exc()
 			if "timeout" in e:
 				print("timed out trying again")
 			else:
@@ -245,7 +246,7 @@ def main2():
 def getID():
 	try:
 		with open("id.txt", "r") as f:
-			return f.readline()
+			return f.read()
 	except: # this means that the id file doesnt exist
 		return ""
 

@@ -68,9 +68,9 @@ def handlePI(connection):
 					print("here")
 					try:
 						l = str(len(b) + 10000000) # add this so that the string is always the same size
-						print("Sending message of size {} to {}".format(l, c[0][0]))
-						server.send(l.encode("utf-8"))
-						server.send(b)
+						print("Sending message of size {} to {}".format(l, c[0]))
+						c[1].send(l.encode("utf-8"))
+						c[1].send(b)
 						print("Sent")
 						break
 					except: # this means that the PC was disconnected 
@@ -105,6 +105,7 @@ def main():
 		print('Got connection from', new_addr)
 		machineType = connection.recv(1024).decode('utf-8') # this should either be PC or PI
 		parts = machineType.split(",")
+		print(parts)
 		if parts[0] == 'PC':
 			print("Its a PC")
 			connectedPCs.append([parts[1], connection, new_addr])
