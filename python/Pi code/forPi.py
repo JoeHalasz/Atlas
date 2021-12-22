@@ -34,8 +34,10 @@ def saveAudio(audio, x):
 def sendAudio(server, audio):
 	print("sending audio")
 	b = audio.get_raw_data()
-	l = len(b)
-	server.send(bytes(int(l)))
+	l = str(len(b) + 10000000) # add this so that the string is always the same size
+	print(len(l.encode("utf-8")))
+	print(l)
+	server.send(l.encode("utf-8"))
 	server.send(b)
 
 
