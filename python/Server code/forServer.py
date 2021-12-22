@@ -22,24 +22,24 @@ def getID(connection):
 		return piId
 
 
-def handlePC(connection):
-	global connectedPCs
-	global connectedPIs
-	connection.settimeout(5) # 5 seconds
-	try:
-		while True:
-			print("sending")
-			connection.send("connected?".encode('utf-8'))
-			print("waiting for recv")
-			data = connection.recv(1024)
-			print(connectedPCs)
-	except: # this means that it disconnected
-		print("disconnected")
-		for i in range(len(connectedPCs)): # remove it from the connected lists
-			c = connectedPCs[i]
-			if c[0] == connection:
-				connectedPCs.pop(i)
-	print(connectedPCs)
+# def handlePC(connection):
+# 	global connectedPCs
+# 	global connectedPIs
+# 	connection.settimeout(5) # 5 seconds
+# 	try:
+# 		while True:
+# 			print("sending")
+# 			connection.send("connected?".encode('utf-8'))
+# 			print("waiting for recv")
+# 			data = connection.recv(1024)
+# 			print(connectedPCs)
+# 	except: # this means that it disconnected
+# 		print("disconnected")
+# 		for i in range(len(connectedPCs)): # remove it from the connected lists
+# 			c = connectedPCs[i]
+# 			if c[0] == connection:
+# 				connectedPCs.pop(i)
+# 	print(connectedPCs)
 
 
 def handlePI(connection):
@@ -83,13 +83,17 @@ def main():
 		
 		print('Got connection from', new_addr)
 		machineType = connection.recv(1024).decode('utf-8') # this should either be PC or PI
-		if machineType == 'PC':
+		parts = machineType.split(",")
+		if len(parts) > 1:
+			username = 
+		if parts[0] == 'PC':
 			print("Its a PC")
-			connectedPCs.append([connection, new_addr])
-			t = threading.Thread(target=handlePC, args=(connection,))
-			t.start()
-			threads.append(t)
-		elif machineType == 'PI':
+			connectedPCs.append([parts[1], connection, new_addr])
+
+			# t = threading.Thread(target=handlePC, args=(connection,))
+			# t.start()
+			# threads.append(t)
+		elif parts[0] == 'PI':
 			print("Its a PI")
 			connectedPIs.append([connection, new_addr])
 			t = threading.Thread(target=handlePI, args=(connection,)) 

@@ -226,13 +226,21 @@ def ensureConnected(server, run_event):
 		server.send("yes".encode('utf-8'))
 		
 
+# will return the username of this user if it exists
+def getID():
+	try:
+		with open("id.txt", "r") as f:
+			return f.readline()
+	except: # this means that the id file doesnt exist
+		return ""
+
 
 # this will connect to the server and ensure that the server knows we are still connected
 def serverConnection(run_event):
 	serverIp = "71.105.82.137"
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.connect((serverIp, 51152))
-	server.send("PC".encode('utf-8'))
+	server.send("PC,{}".format(getUsername()).encode('utf-8'))
 	t = threading.Thread(target=ensureConnected, args=(server, run_event,))
 	t.start()
 
