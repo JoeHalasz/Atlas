@@ -84,8 +84,6 @@ def main():
 		print('Got connection from', new_addr)
 		machineType = connection.recv(1024).decode('utf-8') # this should either be PC or PI
 		parts = machineType.split(",")
-		if len(parts) > 1:
-			username = 
 		if parts[0] == 'PC':
 			print("Its a PC")
 			connectedPCs.append([parts[1], connection, new_addr])
