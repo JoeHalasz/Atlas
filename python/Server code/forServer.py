@@ -68,11 +68,14 @@ def handlePI(connection):
 					print("here")
 					try:
 						l = str(len(b) + 10000000) # add this so that the string is always the same size
+						print("Sending message of size {} to {}".format(l, c[0][0]))
 						server.send(l.encode("utf-8"))
 						server.send(b)
+						print("Sent")
 						break
 					except: # this means that the PC was disconnected 
 						# delete this PC from the list and try another computer
+						print("That computer is disconnected. Removing from list")
 						connectedPCs.pop(i)
 						continue
 				i+=1

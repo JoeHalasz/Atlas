@@ -176,18 +176,27 @@ def saveAudio(audio, num):
 
 
 def getAudio(server):
-	strlen = server.recv(8).decode("utf-8")
-	length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
-	print(length)
-	b = b''
-	while len(b) < length:
-		batch = min(4096, length)
-		newpart = server.recv(batch)
-		b += newpart
-		print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
-	print("download finished")
-	audio = AudioData(b)
-	return audio
+	while True:
+		try:
+			strlen = server.recv(8).decode("utf-8")
+			length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
+			print(length)
+			b = b''
+			while len(b) < length:
+				batch = min(4096, length)
+				newpart = server.recv(batch)
+				b += newpart
+				print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
+			print("download finished")
+			audio = AudioData(b)
+			return audio
+		except Exception as e:
+			if "timeout" in e:
+				print("timed out trying again")
+			else:
+				print(e)
+				quit()
+	
 
 
 # def readAudioOld():
@@ -266,9 +275,8 @@ def main():
 	try:
 		while True:
 			audio = getAudio(server)
-			if audio:
-				textTransform(getText(audio,r))
-				# saveAudio(audio, x)
+			textTransform(getText(audio,r))
+			# saveAudio(audio, x)
 	except KeyboardInterrupt as e:
 		pass
 	except:
