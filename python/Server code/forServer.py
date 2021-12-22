@@ -63,7 +63,9 @@ def handlePI(connection):
 			i = 0
 			while i < len(connectedPCs):
 				c = connectedPCs[i]
+				print("checking",connectedPCs[i])
 				if c[0] == piId: # if they have the same ID
+					print("here")
 					try:
 						l = str(len(b) + 10000000) # add this so that the string is always the same size
 						server.send(l.encode("utf-8"))

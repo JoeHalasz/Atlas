@@ -190,25 +190,25 @@ def getAudio(server):
 	return audio
 
 
-def readAudioOld():
-	global x
-	path = os.path.expanduser('~') + "\\autorun\\audioFiles"
-	paths = []
-	while len(paths) == 0: # wait until there is something in the folder
-		paths = os.listdir(path)
+# def readAudioOld():
+# 	global x
+# 	path = os.path.expanduser('~') + "\\autorun\\audioFiles"
+# 	paths = []
+# 	while len(paths) == 0: # wait until there is something in the folder
+# 		paths = os.listdir(path)
 	
-	# get the one path we want to process this time 
-	path = path + "\\" + paths[0]
-	# print("checking", path)
-	while True:
-		try:
-			with open(path, "rb") as f:
-				data = f.read()
-			os.remove(path) # only delete the file if the audio came back as a real audio file.
-			return sr.AudioData(data, 44100, 2)
-		except PermissionError:
-			# print("waiting for download")
-			pass
+# 	# get the one path we want to process this time 
+# 	path = path + "\\" + paths[0]
+# 	# print("checking", path)
+# 	while True:
+# 		try:
+# 			with open(path, "rb") as f:
+# 				data = f.read()
+# 			os.remove(path) # only delete the file if the audio came back as a real audio file.
+# 			return sr.AudioData(data, 44100, 2)
+# 		except PermissionError:
+# 			# print("waiting for download")
+# 			pass
 
 
 
@@ -247,6 +247,7 @@ def serverConnection(run_event):
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.connect((serverIp, 51152))
 	server.send("PC,{}".format(getID()).encode('utf-8'))
+	server.settimeout(5) # 5 seconds need this so that ctrl c works
 	return server
 
 
@@ -265,8 +266,9 @@ def main():
 	try:
 		while True:
 			audio = getAudio(server)
-			textTransform(getText(audio,r))
-			# saveAudio(audio, x)
+			if audio:
+				textTransform(getText(audio,r))
+				# saveAudio(audio, x)
 	except KeyboardInterrupt as e:
 		pass
 	except:
