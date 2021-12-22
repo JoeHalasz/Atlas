@@ -183,12 +183,12 @@ def getAudio(server):
 			print(length)
 			b = b''
 			while len(b) < length:
-				batch = min(4096, length)
+				batch = min(1024*1024, length)
 				newpart = server.recv(batch)
 				b += newpart
 				print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
 			print("download finished")
-			audio = AudioData(b)
+			audio = sr.AudioData(b, 44100,2)
 			return audio
 		except Exception:
 			e = traceback.format_exc()
