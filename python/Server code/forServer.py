@@ -1,7 +1,7 @@
 from firstTimeConnection import firstTimeConnection
 import socket
 import threading
-
+import time
 
 connectedPCs = []
 connectedPIs = []
@@ -91,6 +91,10 @@ def main():
 			# t = threading.Thread(target=handlePC, args=(connection,))
 			# t.start()
 			# threads.append(t)
+			while True:
+				connection.send("here".encode('utf-8'))
+				print("sent")
+				time.sleep(1)
 		elif parts[0] == 'PI':
 			print("Its a PI")
 			connectedPIs.append([connection, new_addr])

@@ -240,7 +240,7 @@ def serverConnection(run_event):
 	serverIp = "71.105.82.137"
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.connect((serverIp, 51152))
-	server.send("PC,{}".format(getUsername()).encode('utf-8'))
+	server.send("PC,{}".format(getID()).encode('utf-8'))
 	t = threading.Thread(target=ensureConnected, args=(server, run_event,))
 	t.start()
 
