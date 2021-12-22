@@ -50,15 +50,28 @@ def handlePI(connection):
 		piId = getID(connection)
 		# check if that ID has any computers to connect to
 		while True:
-				strlen = connection.recv(8).decode("utf-8")
-				length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
-				print(length)
-				b = b''
-				while len(b) < length:
-					batch = min(4096, length)
-					newpart = connection.recv(batch)
-					b += newpart
-					print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
+			strlen = connection.recv(8).decode("utf-8")
+			length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
+			print(length)
+			b = b''
+			while len(b) < length:
+				batch = min(4096, length)
+				newpart = connection.recv(batch)
+				b += newpart
+				print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
+			print("download finished")
+			for i in range(len(connectedPCs)):
+				c = connectedPCs[i]
+				if c[0] == piId: # if they have the same ID
+					try:
+						l = str(len(b) + 10000000) # add this so that the string is always the same size
+						server.send(l.encode("utf-8"))
+						server.send(b)
+					except: # this means that the PC was disconnected 
+						# delete this PC from the list and try another computer
+						connectedPCs.pop(i)
+						i-=1
+
 
 				
 	except Exception as e:
@@ -87,14 +100,6 @@ def main():
 		if parts[0] == 'PC':
 			print("Its a PC")
 			connectedPCs.append([parts[1], connection, new_addr])
-
-			# t = threading.Thread(target=handlePC, args=(connection,))
-			# t.start()
-			# threads.append(t)
-			while True:
-				connection.send("here".encode('utf-8'))
-				print("sent")
-				time.sleep(1)
 		elif parts[0] == 'PI':
 			print("Its a PI")
 			connectedPIs.append([connection, new_addr])

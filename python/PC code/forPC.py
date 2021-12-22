@@ -175,7 +175,22 @@ def saveAudio(audio, num):
 			f.write(audio.get_wav_data())
 
 
-def readAudio():
+def getAudio(server):
+	strlen = connection.recv(8).decode("utf-8")
+	length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
+	print(length)
+	b = b''
+	while len(b) < length:
+		batch = min(4096, length)
+		newpart = connection.recv(batch)
+		b += newpart
+		print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
+	print("download finished")
+	audio = AudioData(b)
+	return audio
+
+
+def readAudioOld():
 	global x
 	path = os.path.expanduser('~') + "\\autorun\\audioFiles"
 	paths = []
@@ -217,15 +232,6 @@ def main2():
 
 
 
-# constantly tell the server we are still connected
-def ensureConnected(server, run_event):
-	while run_event.is_set():
-		print("waiting for recv")
-		data = server.recv(1024)
-		print("sending")
-		server.send("yes".encode('utf-8'))
-		
-
 # will return the username of this user if it exists
 def getID():
 	try:
@@ -241,16 +247,15 @@ def serverConnection(run_event):
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.connect((serverIp, 51152))
 	server.send("PC,{}".format(getID()).encode('utf-8'))
-	t = threading.Thread(target=ensureConnected, args=(server, run_event,))
-	t.start()
+	return server
 
 
 def main():
 
 	run_event = threading.Event()
 	run_event.set()
-	serverConnection(run_event)
-	
+	server = serverConnection(run_event)
+
 	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
 	t.start()
 
@@ -259,7 +264,7 @@ def main():
 	
 	try:
 		while True:
-			audio = readAudio()
+			audio = getAudio(server)
 			textTransform(getText(audio,r))
 			# saveAudio(audio, x)
 	except KeyboardInterrupt as e:
