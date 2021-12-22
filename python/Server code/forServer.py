@@ -50,15 +50,20 @@ def handlePI(connection):
 		piId = getID(connection)
 		# check if that ID has any computers to connect to
 		while True:
-			length = int(connection.recv(4)) # this should be the size of the next thing to recv
-			b = b''
-			print(length)
-			while length > 1024:
-				b += connection.recv(1024)
-				length -= 1024
-			b += connection.recv(length)
+				strlen = connection.recv(8).decode("utf-8")
+				length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
+				print(length)
+				b = b''
+				while len(b) < length:
+					batch = min(4096, length)
+					newpart = connection.recv(batch)
+					b += newpart
+					print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
+
+				
 	except Exception as e:
 		print(e)
+		print("Disconnecting pi",piId)
 
 
 
