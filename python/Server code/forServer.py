@@ -64,16 +64,18 @@ def handlePI(connection, piAddr):
 				left -= len(newpart)
 				b += newpart
 				print("{}b out of {}b: {}%".format(len(b),length,round((len(b)/length)*10000)/100))
-			print("download finished, took {} seconds".format(time.time() - startTime))
+			# print("download finished, took {} seconds".format(time.time() - startTime))
 			i = 0
+			sent = False
 			while i < len(connectedPCs):
 				c = connectedPCs[i]
-				if c[0] == piId: # if they have the same ID
+				if c[0].replace("\n","") == piId.replace("\n",""): # if they have the same ID
 					try:
 						l = str(len(b) + 10000000) # add this so that the string is always the same size
 						print("Sending message of size {}b to {}".format(len(b), c[0]))
 						c[1].send(l.encode("utf-8"))
 						c[1].sendall(b)
+						sent = True
 						break
 					except: # this means that the PC was disconnected 
 						# delete this PC from the list and try another computer
@@ -83,6 +85,8 @@ def handlePI(connection, piAddr):
 						connectedPCs.pop(i)
 						continue
 				i+=1
+			if not sent:
+				print("There are no connected PC's with the id [{}].".format(piId))
 
 
 				
