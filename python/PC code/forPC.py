@@ -10,6 +10,7 @@ import traceback
 import datetime
 from parsing import *
 import socket
+import time
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -197,7 +198,7 @@ def getData(server):
 				pass
 			else:
 				print(e)
-	
+		time.sleep(.01)
 
 
 # def readAudioOld():
