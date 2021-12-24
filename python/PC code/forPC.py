@@ -103,15 +103,15 @@ def openApplication(commandParams):
 		subprocess.call('C:\\Program Files\\Unity Hub\\Unity Hub.exe')
 
 
-def getText(audio, r):
-	try:
-		if audio != "":
-			text = r.recognize_google(audio) # this line will error if the download has not finished yet.
-			# text = r.recognize_sphinx(audio) # this is offline 
-			return text
-	except sr.UnknownValueError as e:
-		pass
-	return None
+# def getText(audio, r):
+# 	try:
+# 		if audio != "":
+# 			text = r.recognize_google(audio) # this line will error if the download has not finished yet.
+# 			# text = r.recognize_sphinx(audio) # this is offline 
+# 			return text
+# 	except sr.UnknownValueError as e:
+# 		pass
+# 	return None
 
 
 def textTransform(text):
@@ -175,28 +175,28 @@ def saveAudio(audio, num):
 			f.write(audio.get_wav_data())
 
 
-def getAudio(server):
+def getData(server):
 	while True:
 		try:
 			strlen = server.recv(8).decode("utf-8")
 			length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
-			print(length)
 			b = b''
-			while len(b) < length:
-				batch = min(1024*1024, length)
+			left = length
+			while left != 0:
+				batch = min(1024*1024, left)
 				newpart = server.recv(batch)
+				left -= len(newpart)
 				b += newpart
-				print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
-			print("download finished")
-			audio = sr.AudioData(b, 44100,2)
-			return audio
+				# print("{}b out of {}b: {}%".format(len(b),length,round((len(b)/length)*10000)/100))
+			return b.decode('utf-8')
+		except ConnectionResetError:
+			return "reconnect"
 		except Exception:
 			e = traceback.format_exc()
 			if "timeout" in e:
-				print("timed out trying again")
+				pass
 			else:
 				print(e)
-				quit()
 	
 
 
@@ -252,20 +252,28 @@ def getID():
 
 
 # this will connect to the server and ensure that the server knows we are still connected
-def serverConnection(run_event):
-	serverIp = "71.105.82.137"
-	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	server.connect((serverIp, 51152))
-	server.send("PC,{}".format(getID()).encode('utf-8'))
-	server.settimeout(5) # 5 seconds need this so that ctrl c works
-	return server
+def serverConnection():
+	server = None
+	while True: # try to connect
+		try:
+			print("Trying to connect to server")
+			serverIp = "71.105.82.137"
+			server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			server.settimeout(5) # 5 seconds need this so that ctrl c works
+			server.connect((serverIp, 51152))
+			server.send("PC,{}".format(getID()).encode('utf-8'))
+			return server
+		except:
+			print(traceback.format_exc())
+	
 
 
 def main():
 
 	run_event = threading.Event()
 	run_event.set()
-	server = serverConnection(run_event)
+
+	server = serverConnection()
 
 	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
 	t.start()
@@ -275,9 +283,13 @@ def main():
 	
 	try:
 		while True:
-			audio = getAudio(server)
-			textTransform(getText(audio,r))
+			text = getData(server)
+			if audio == 'reconnect':
+				server = serverConnection()
+				continue
+			textTransform(text)
 			# saveAudio(audio, x)
+
 	except KeyboardInterrupt as e:
 		pass
 	except:
