@@ -2,6 +2,8 @@ from firstTimeConnection import firstTimeConnection
 import socket
 import threading
 import time
+import traceback
+
 
 connectedPCs = []
 connectedPIs = []
@@ -42,7 +44,7 @@ def getID(connection):
 # 	print(connectedPCs)
 
 
-def handlePI(connection):
+def handlePI(connection, piAddr):
 	try:
 		global connectedPCs
 		global connectedPIs
@@ -52,30 +54,32 @@ def handlePI(connection):
 		while True:
 			strlen = connection.recv(8).decode("utf-8")
 			length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
-			print(length)
 			b = b''
-			while len(b) < length:
-				batch = min(1024*1024, length)
+			print("Recieved message of size {}b from {}".format(length, piAddr))
+			startTime = time.time()
+			left = length
+			while left != 0:
+				batch = min(1024*1024, left)
 				newpart = connection.recv(batch)
+				left -= len(newpart)
 				b += newpart
-				print("{}kb out of {}kb: {}%".format(round(len(b)/1024,1),round(length/1024,1),round((len(b)/length)*10000)/100))
-			print("download finished")
+				print("{}b out of {}b: {}%".format(len(b),length,round((len(b)/length)*10000)/100))
+			print("download finished, took {} seconds".format(time.time() - startTime))
 			i = 0
 			while i < len(connectedPCs):
 				c = connectedPCs[i]
-				print("checking",connectedPCs[i])
 				if c[0] == piId: # if they have the same ID
-					print("here")
 					try:
 						l = str(len(b) + 10000000) # add this so that the string is always the same size
-						print("Sending message of size {} to {}".format(l, c[0]))
+						print("Sending message of size {}b to {}".format(len(b), c[0]))
 						c[1].send(l.encode("utf-8"))
-						c[1].send(b)
-						print("Sent")
+						c[1].sendall(b)
 						break
 					except: # this means that the PC was disconnected 
 						# delete this PC from the list and try another computer
-						print("That computer is disconnected. Removing from list")
+						print()
+						print(traceback.format_exc())
+						print("{} has disconnected.".format(connectedPCs[i][2]))
 						connectedPCs.pop(i)
 						continue
 				i+=1
@@ -112,7 +116,7 @@ def main():
 		elif parts[0] == 'PI':
 			print("Its a PI")
 			connectedPIs.append([connection, new_addr])
-			t = threading.Thread(target=handlePI, args=(connection,)) 
+			t = threading.Thread(target=handlePI, args=(connection,new_addr,)) 
 			t.start() 
 			threads.append(t)
 		else:
