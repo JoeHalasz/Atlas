@@ -246,7 +246,7 @@ def main2():
 def getID():
 	try:
 		with open("id.txt", "r") as f:
-			return f.read()
+			return f.read().replace("\n","")
 	except: # this means that the id file doesnt exist
 		return ""
 

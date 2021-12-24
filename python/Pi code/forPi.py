@@ -57,6 +57,7 @@ def getId(server):
 		piId = server.recv(1024).decode('utf-8')
 		with open("id.txt", "w") as f:
 			f.write(piId)
+	piId = piId.replace("\n","")
 	print("My ID is", piId)
 	return piId
 
