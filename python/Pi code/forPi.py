@@ -22,27 +22,28 @@ def saveAudio(audio, x):
 		with open("sound"+str(x)+".wav", "wb") as f:
 			f.write(audio.get_wav_data())
 
-# def sendAudio(sftp, x):
-# 	print("sending audio", x)
-# 	try:
-# 		sftp.put("sound"+str(x)+".wav", "autorun/audioFiles/sound"+str(x)+".wav")
-# 	except FileNotFoundError:
-# 		pass # this means that the file was deleted too quickly for SFTP to react. Doesn't matter at all
-# 	os.remove("sound"+str(x)+".wav") # delete after use
 
 
-def sendAudio(server, audio):
-	print("sending audio")
-	b = audio.get_raw_data()
+def getTextAndSend(server,audio,reconnect, r,x):
+	try:
+		text = r.recognize_google(audio)
+		# text = r.recognize_sphinx(audio) # this is offline
+		send(server,text)
+		saveAudio(audio,x)
+	except sr.UnknownValueError: # sometimes if the audio is empty this happens
+		pass
+	except ConnectionResetError: # this means there was a server disconnect
+		reconnect = True
+
+def send(server, send):
+	b = send # do this just incase audio gets overwritten in main
+	# b = audio.get_raw_data()
 	l = str(len(b) + 10000000) # add this so that the string is always the same size
-	print(len(l.encode("utf-8")))
-	print(l)
+	print("Sending message of size {}b".format(len(b)))
 	server.send(l.encode("utf-8"))
-	server.send(b)
+	server.send(b.encode("utf-8"))
+	
 
-
-def listen(source, audio):
-	audio[0] = r.listen(source)
 
 
 def getId(server):
@@ -60,33 +61,37 @@ def getId(server):
 	return piId
 
 	
+def serverConnection():
+	server = None
+	while True:
+		try:
+			print("trying to connect")
+			serverIp = "71.105.82.137"
+			server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			server.connect((serverIp, 51152))
+			server.send("PI".encode('utf-8'))
+			piId = getId(server)
+			return server,piId
+		except:
+			print(traceback.format_exc())
 
 
 def main():
-	print("trying to connect")
-	serverIp = "71.105.82.137"
-	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	server.connect((serverIp, 51152))
-	server.send("PI".encode('utf-8'))
-
-	piId = getId(server)
-
+	
+	server, piId = serverConnection()
+	
+	reconnect = False
 	with sr.Microphone() as source:
-		x = 0
 		print("Listening")
-		# audio[0] = r.listen(source)
+		x = 0
 		while True:
-			listen(source,audio)
-			# t = threading.Thread(target=listen, args=(source,audio,))
-			# t.start()
-			
-			# saveAudio(audio[0], x)
-			sendAudio(server, audio[0])
-			audio[0] = ""
-			
-			x += 1
-			# t.join()
+			if reconnect:
+				server, piId = serverConnection()
+				reconnect = False
+			audio = r.listen(source)
 
+			t = threading.Thread(target=getTextAndSend, args=(server,audio,reconnect,r,x,))
+			t.start()
 
 
 if __name__ == '__main__':
