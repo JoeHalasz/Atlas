@@ -83,10 +83,11 @@ def typeWords(words):
 			if len(letters) > 0:
 				keys.press(Key.space)
 				keys.release(Key.space)
-	keys.press(Key.enter)
-	keys.release(Key.enter)
 	if done:
 		typing = False;
+	else:
+		keys.press(Key.enter)
+		keys.release(Key.enter)
 		
 
 
