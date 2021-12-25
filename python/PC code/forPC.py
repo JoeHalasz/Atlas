@@ -156,7 +156,7 @@ def textTransform(text):
 						elif command == "press enter":
 							keys.press(Key.enter)
 							keys.release(Key.enter)
-						elif command == "close window":
+						elif text == "close window":
 							keys.press(Key.alt)
 							keys.press(Key.f4)
 							keys.release(Key.alt)
