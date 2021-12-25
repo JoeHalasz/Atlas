@@ -16,6 +16,7 @@ import pocketsphinx
 
 
 r = sr.Recognizer()
+r.dynamic_energy_threshold = True
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
 r.phrase_threshold = 0.1  # minimum seconds of speaking audio before we consider the speaking audio a phrase - values below this are ignored (for filtering out clicks and pops)
 r.non_speaking_duration = 0.1  # seconds of non-speaking audio to keep on both sides of the recording
@@ -87,6 +88,7 @@ def main():
 	
 	reconnect = False
 	with sr.Microphone() as source:
+		r.adjust_for_ambient_noise(source, duration=1)
 		print("Listening")
 		x = 0
 		while True:
