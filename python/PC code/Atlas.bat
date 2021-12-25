@@ -1,0 +1,2 @@
+python forPC.py
+pause
