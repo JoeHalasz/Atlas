@@ -10,6 +10,10 @@ import traceback
 import time 
 from os.path import exists
 import socket
+import pocketsphinx
+
+
+
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -17,16 +21,17 @@ r.phrase_threshold = 0.1  # minimum seconds of speaking audio before we consider
 r.non_speaking_duration = 0.1  # seconds of non-speaking audio to keep on both sides of the recording
 audio = [""]
 
+
 def saveAudio(audio, x):
 	if audio != "":
 		with open("sound"+str(x)+".wav", "wb") as f:
 			f.write(audio.get_wav_data())
 
 
-
 def getTextAndSend(server,audio,reconnect, r,x):
 	try:
-		text = r.recognize_google(audio)
+		# text = r.recognize_google(audio)
+		wit = r.recognize_wit(audio,"ZKH4OYXN4M4WE5YFUACWZLBJRXY66UHF") # this is better than google, but it takes longer
 		# text = r.recognize_sphinx(audio) # this is offline
 		send(server,text)
 		saveAudio(audio,x)
@@ -34,6 +39,7 @@ def getTextAndSend(server,audio,reconnect, r,x):
 		pass
 	except ConnectionResetError: # this means there was a server disconnect
 		reconnect = True
+
 
 def send(server, send):
 	b = send # do this just incase audio gets overwritten in main
@@ -43,8 +49,6 @@ def send(server, send):
 	server.send(l.encode("utf-8"))
 	server.send(b.encode("utf-8"))
 	
-
-
 
 def getId(server):
 	try:

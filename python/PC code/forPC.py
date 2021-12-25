@@ -236,7 +236,6 @@ def main2():
 	# remind me to [name] on the 5th
 	# calendarAdd("thing", "on 12/07/21")
 	# calendarRemove("do homework")
-	import time
 	time.sleep(.5)
 
 	run_event.clear()
