@@ -16,7 +16,8 @@ import pocketsphinx
 
 
 r = sr.Recognizer()
-r.dynamic_energy_threshold = True
+r.dynamic_energy_threshold = False
+r.energy_threshold = 2000
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
 r.phrase_threshold = 0.1  # minimum seconds of speaking audio before we consider the speaking audio a phrase - values below this are ignored (for filtering out clicks and pops)
 r.non_speaking_duration = 0.1  # seconds of non-speaking audio to keep on both sides of the recording
@@ -31,8 +32,8 @@ def saveAudio(audio, x):
 
 def getTextAndSend(server,audio,reconnect, r,x):
 	try:
-		# text = r.recognize_google(audio)
-		wit = r.recognize_wit(audio,"ZKH4OYXN4M4WE5YFUACWZLBJRXY66UHF") # this is better than google, but it takes longer
+		text = r.recognize_google(audio)
+		# text = r.recognize_wit(audio,"ZKH4OYXN4M4WE5YFUACWZLBJRXY66UHF") # this is better than google, but it takes longer
 		# text = r.recognize_sphinx(audio) # this is offline
 		send(server,text)
 		saveAudio(audio,x)

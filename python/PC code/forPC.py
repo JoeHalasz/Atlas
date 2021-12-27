@@ -1,7 +1,6 @@
 import speech_recognition as sr
 import threading
 from pynput.keyboard import Key, Controller
-import subprocess
 # more keys here: https://pythonhosted.org/pynput/keyboard.html#pynput.keyboard.Key
 from word2number import w2n
 import os
@@ -11,6 +10,9 @@ import datetime
 from parsing import *
 import socket
 import time
+
+import applicationStuff
+
 
 r = sr.Recognizer()
 r.pause_threshold = 0.3  # seconds of non-speaking audio before a phrase is considered complete
@@ -22,7 +24,10 @@ commands = ["open", "start taking note", "take a note",
 			"write this down", "type this", "stop listening", 
 			"start typing", "press enter", "save",
 			"close window", "refresh page", # 
-			"remind me to", "I have to","you have to" # calendar commands
+			"remind me to", "I have to","you have to", # calendar commands
+			"close tab", "close this tab", "close a tab", "close the tab", # browser commands
+			"message gianna", # discord command
+			"tab to", "alt tab to"
 			]
 
 stopTypingTriggers = ["stop writing", "stop typing", "end note", "stop taking note"]
@@ -88,32 +93,21 @@ def typeWords(words):
 	else:
 		keys.press(Key.enter)
 		keys.release(Key.enter)
-		
 
 
-# TODO better way to do this might be to press the windows key and type it then press enter
-def openApplication(commandParams):
-	if "chrome" in commandParams:
-		subprocess.call('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
-	elif "sublime" in commandParams:
-		subprocess.call('C:\\Program Files\\Sublime Text 3\\sublime_text.exe')
-	elif "brave" in commandParams:
-		subprocess.call('C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe')
-	elif "git" in commandParams:
-		subprocess.call('C:\\Users\\jhala\\AppData\\Local\\GitHubDesktop\\GitHubDesktop.exe')
-	elif "unity" in commandParams:
-		subprocess.call('C:\\Program Files\\Unity Hub\\Unity Hub.exe')
+def sendDiscordMessage(message, recipiant):
+	try:
+		user = client.get_user(recipiant)
+		user.send(message)
+	except:
+		print("discord error")
+		print(traceback.format_exc())
 
 
-# def getText(audio, r):
-# 	try:
-# 		if audio != "":
-# 			text = r.recognize_google(audio) # this line will error if the download has not finished yet.
-# 			# text = r.recognize_sphinx(audio) # this is offline 
-# 			return text
-# 	except sr.UnknownValueError as e:
-# 		pass
-# 	return None
+def fixText(text):
+	if text[-1] == "." or text[-1] == "!" or text[-1] == "?":
+		text = text[:-1]
+	return text.lower().replace(",","")
 
 
 def textTransform(text):
@@ -136,10 +130,10 @@ def textTransform(text):
 						if len(helper) > 1:
 							commandParams = helper[1]
 						if command == "open":
-							t = threading.Thread(target=openApplication, args=(commandParams,))
+							t = threading.Thread(target=applicationStuff.openApplication, args=(commandParams,keys,))
 							t.start()
 						elif command == "start taking note" or command == "write this down" or command == "take a note":
-							t = threading.Thread(target=openApplication, args=("sublime",))
+							t = threading.Thread(target=applicationStuff.openApplication, args=("sublime",keys,))
 							t.start()
 							typing = True
 							if commandParams != "": # type anything they say after the command if its not in another sentence
@@ -156,7 +150,7 @@ def textTransform(text):
 						elif command == "press enter":
 							keys.press(Key.enter)
 							keys.release(Key.enter)
-						elif text == "close window":
+						elif command == "close window":
 							keys.press(Key.alt)
 							keys.press(Key.f4)
 							keys.release(Key.alt)
@@ -165,10 +159,19 @@ def textTransform(text):
 							keys.press(Key.f5)
 							keys.release(Key.f5)
 						elif command == "remind me to" or command == "I have to" or command == "you have to":
-							remindMeToParsing(text, command)
+							remindMeToParsing(text, command)							
+						elif command == "close tab" or command == "close this tab" or command == "close a tab":
+							keys.press(Key.ctrl_l)
+							keys.press("w")
+							keys.release(Key.ctrl_l)
+							keys.release("w")
+						elif command == "message gianna":
+							sendDiscordMessage(text.split(command)[-1], "RatSmacker#9549")
+						elif command == "tab to" or command == "alt tab to":
+							print(text.split(command))
+							print(text)
+							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
 						break;
-
-
 
 
 def saveAudio(audio, num):
@@ -202,47 +205,6 @@ def getData(server):
 		time.sleep(.01)
 
 
-# def readAudioOld():
-# 	global x
-# 	path = os.path.expanduser('~') + "\\autorun\\audioFiles"
-# 	paths = []
-# 	while len(paths) == 0: # wait until there is something in the folder
-# 		paths = os.listdir(path)
-	
-# 	# get the one path we want to process this time 
-# 	path = path + "\\" + paths[0]
-# 	# print("checking", path)
-# 	while True:
-# 		try:
-# 			with open(path, "rb") as f:
-# 				data = f.read()
-# 			os.remove(path) # only delete the file if the audio came back as a real audio file.
-# 			return sr.AudioData(data, 44100, 2)
-# 		except PermissionError:
-# 			# print("waiting for download")
-# 			pass
-
-
-
-def main2():
-	run_event = threading.Event()
-	run_event.set()
-	t = threading.Thread(target=Events.createTimedEvents, args=(run_event, 1))
-	t.start()
-	# add [name] to my calendar for tomorrow
-	# add [name] to tomorrows schedule at 8am
-	# add [name] tomorrow from 8 to 10am
-	# remind me to [name] in 2 days 
-	# remind me to [name] on the 5th
-	# calendarAdd("thing", "on 12/07/21")
-	# calendarRemove("do homework")
-	time.sleep(.5)
-
-	run_event.clear()
-	t.join()
-
-
-
 # will return the username of this user if it exists
 def getID():
 	try:
@@ -268,9 +230,7 @@ def serverConnection():
 			print(traceback.format_exc())
 	
 
-
 def main():
-
 	run_event = threading.Event()
 	run_event.set()
 
@@ -278,9 +238,6 @@ def main():
 
 	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
 	t.start()
-
-	# calendarAdd("Get new parking permit", "December 30", "9am")
-	# calendarRemove("Something")
 	
 	try:
 		while True:
@@ -288,7 +245,7 @@ def main():
 			if audio == 'reconnect':
 				server = serverConnection()
 				continue
-			textTransform(text)
+			textTransform(fixText(text))
 			# saveAudio(audio, x)
 
 	except KeyboardInterrupt as e:
@@ -301,6 +258,6 @@ def main():
 	t.join()
 	
 
-
 if __name__ == '__main__':
 	main()
+
