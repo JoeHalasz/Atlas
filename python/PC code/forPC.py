@@ -22,7 +22,7 @@ r.non_speaking_duration = 0.1  # seconds of non-speaking audio to keep on both s
 stop = False
 commands = ["open", "start taking note", "take a note", 
 			"write this down", "type this", "stop listening", 
-			"start typing", "press enter", "save",
+			"start typing", "press enter", "save", "press tab",
 			"close window", "refresh page", # 
 			"remind me to", "I have to","you have to", # calendar commands
 			"close tab", "close this tab", "close a tab", "close the tab", # browser commands
@@ -122,8 +122,10 @@ def textTransform(text):
 				typeWords(text)
 			elif len(text) > 1:
 				text = text.lower()
+				noCommandFound = True
 				for c in commands:
 					if c.lower() in text: # if any of the commands are in the text
+						noCommandFound = False
 						helper = text.split(c + " ", 1)
 						command = c
 						commandParams = ""
@@ -150,6 +152,9 @@ def textTransform(text):
 						elif command == "press enter":
 							keys.press(Key.enter)
 							keys.release(Key.enter)
+						elif command == "press tab":
+							keys.press(Key.tab)
+							keys.release(Key.tab)
 						elif command == "close window":
 							keys.press(Key.alt)
 							keys.press(Key.f4)
@@ -170,6 +175,9 @@ def textTransform(text):
 						elif command == "tab to" or command == "alt tab to":
 							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
 						break;
+				if noCommandFound:
+					if text.split(" ")[0] == "type":
+						typeWords(" ".join(text.split(" ")[1:]))
 
 
 def saveAudio(audio, num):
