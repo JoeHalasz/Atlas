@@ -168,8 +168,6 @@ def textTransform(text):
 						elif command == "message gianna":
 							sendDiscordMessage(text.split(command)[-1], "RatSmacker#9549")
 						elif command == "tab to" or command == "alt tab to":
-							print(text.split(command))
-							print(text)
 							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
 						break;
 

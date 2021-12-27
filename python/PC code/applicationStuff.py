@@ -23,7 +23,6 @@ def bringToForground(name, keys, endFast=False):
 			# print(app[1])
 			if name in app[1].lower():
 				noneFound = False
-				print("moving {} to forground".format(app[1]))
 				keys.press(Key.alt) # next function only works if alt key is pressed
 				try:
 					win32gui.SetForegroundWindow(win32gui.FindWindow(None,app[1]))
