@@ -86,21 +86,27 @@ def serverConnection():
 def main():
 	
 	server, piId = serverConnection()
-	
 	reconnect = False
-	with sr.Microphone() as source:
-		r.adjust_for_ambient_noise(source, duration=1)
-		print("Listening")
-		x = 0
-		while True:
-			if reconnect:
-				server, piId = serverConnection()
-				reconnect = False
-			audio = r.listen(source)
+	while True:
+		try:
+			with sr.Microphone() as source:
+				r.adjust_for_ambient_noise(source, duration=1)
+				print("Listening")
+				x = 0
+				while True:
+					if reconnect:
+						server, piId = serverConnection()
+						reconnect = False
+					audio = r.listen(source)
 
-			t = threading.Thread(target=getTextAndSend, args=(server,audio,reconnect,r,x,))
-			t.start()
-
+					t = threading.Thread(target=getTextAndSend, args=(server,audio,reconnect,r,x,))
+					t.start()
+		except:
+			if "Stream closed" in traceback.format_exc():
+				# this means that the mic was unplugged
+				continue
+			else:
+				break
 
 if __name__ == '__main__':
 	main()
