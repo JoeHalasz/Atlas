@@ -70,6 +70,7 @@ def getId(server):
 	
 def serverConnection():
 	server = None
+	tries = 0
 	while True:
 		try:
 			print("trying to connect")
@@ -80,7 +81,12 @@ def serverConnection():
 			piId = getId(server)
 			return server,piId
 		except:
+			tries += 1
 			print(traceback.format_exc())
+			print("Try", tries)
+			time.sleep(1)
+
+
 
 
 def main():
