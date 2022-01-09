@@ -1,13 +1,13 @@
 from firstTimeConnection import firstTimeConnection
 import socket
 import threading
+from datetime import datetime
 import time
 import traceback
 
 
 connectedPCs = []
 connectedPIs = []
-serverStartTime = time.time()
 
 # this will get the PI's id or create one for it if it doesnt have one, and send it back to the pi
 def getID(connection):
@@ -23,6 +23,10 @@ def getID(connection):
 		return piId
 
 
+def getTime():
+	return datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+
+
 def handlePI(connection, piAddr):
 	try:
 		global connectedPCs
@@ -34,25 +38,25 @@ def handlePI(connection, piAddr):
 			strlen = connection.recv(8).decode("utf-8")
 			length = int(strlen) - 10000000 # added this so that the bytes size is always the same 
 			b = b''
-			print("{}\tRecieved message of size {}b from {}".format(round(time.time() - serverStartTime, 1), length, piAddr))
+			print("{}\tRecieved message of size {}b from {}".format(getTime(), length, piAddr))
 			left = length
 			while left != 0:
 				batch = min(1024*1024, left)
 				newpart = connection.recv(batch)
 				left -= len(newpart)
 				b += newpart
-				print("{}\t{}b out of {}b: {}%".format(round(time.time() - serverStartTime, 1), len(b),length,round((len(b)/length)*10000)/100))
+				print("{}\t{}b out of {}b: {}%".format(getTime(), len(b),length,round((len(b)/length)*10000)/100))
 			i = 0
 			sent = False
 			if len(connectedPCs) == 0:
-				print("{}\tNo connected PC's.".format(round(time.time() - serverStartTime, 1)))
+				print("{}\tNo connected PC's.".format(getTime()))
 			else:
 				while i < len(connectedPCs):
 					c = connectedPCs[i]
 					if c[0].replace("\n","") == piId.replace("\n","") or len(connectedPCs) == 1: # if they have the same ID or there is only one connected PC
 						try:
 							l = str(len(b) + 10000000) # add this so that the string is always the same size
-							print("{}\tSending message of size {}b to {}".format(round(time.time() - serverStartTime, 1), len(b), c[0]))
+							print("{}\tSending message of size {}b to {}".format(getTime(), len(b), c[0]))
 							c[1].send(l.encode("utf-8"))
 							c[1].sendall(b)
 							sent = True
@@ -61,24 +65,24 @@ def handlePI(connection, piAddr):
 							# delete this PC from the list and try another computer
 							print()
 							print(traceback.format_exc())
-							print("{}\t{} has disconnected.".format(round(time.time() - serverStartTime, 1), connectedPCs[i][2]))
+							print("{}\t{} has disconnected.".format(getTime(), connectedPCs[i][2]))
 							connectedPCs.pop(i)
 							continue
 					i+=1
 				if not sent:
-					print("{}\tThere are no connected PC's with the id [{}].".format(round(time.time() - serverStartTime, 1), piId))
-					print("{}\tConnected PC's are:\n\t\t{}".format(round(time.time() - serverStartTime, 1), connectedPCs))
+					print("{}\tThere are no connected PC's with the id [{}].".format(getTime(), piId))
+					print("{}\tConnected PC's are:\n\t\t{}".format(getTime(), connectedPCs))
 
 
 				
 	except Exception as e:
 		print(e)
-		print("{}\tDisconnecting pi {}".format(round(time.time() - serverStartTime, 1), piId))
+		print("{}\tDisconnecting pi {}".format(getTime(), piId))
 
 
 def main():
 	time.sleep(1)
-	print("{}\tStarting server".format(round(time.time() - serverStartTime, 1)))
+	print("{}\tStarting server".format(getTime()))
 	global connectedPCs
 	global connectedPIs
 	threads = []
@@ -90,20 +94,20 @@ def main():
 		# Establish connection with client. 
 		connection, new_addr = s.accept()
 		
-		print('{}\tGot connection from {}'.format(round(time.time() - serverStartTime, 1), new_addr))
+		print('{}\tGot connection from {}'.format(getTime(), new_addr))
 		machineType = connection.recv(1024).decode('utf-8') # this should either be PC or PI
 		parts = machineType.split(",")
 		if parts[0] == 'PC':
-			print("{}\tIts a PC".format(round(time.time() - serverStartTime, 1)))
+			print("{}\tIts a PC".format(getTime()))
 			connectedPCs.append([parts[1], connection, new_addr])
 		elif parts[0] == 'PI':
-			print("{}\tIts a PI".format(round(time.time() - serverStartTime, 1)))
+			print("{}\tIts a PI".format(getTime()))
 			connectedPIs.append([connection, new_addr])
 			t = threading.Thread(target=handlePI, args=(connection,new_addr,)) 
 			t.start() 
 			threads.append(t)
 		else:
-			print("{}\tNot a valid machine type".format(round(time.time() - serverStartTime, 1)))
+			print("{}\tNot a valid machine type".format(getTime()))
 
 		
 if __name__ == '__main__':
