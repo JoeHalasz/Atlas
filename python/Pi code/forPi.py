@@ -32,11 +32,11 @@ def saveAudio(audio, x):
 
 def getTextAndSend(server,audio,reconnect, r,x):
 	try:
-		text = r.recognize_google(audio)
-		# text = r.recognize_wit(audio,"ZKH4OYXN4M4WE5YFUACWZLBJRXY66UHF") # this is better than google, but it takes longer
+		# text = r.recognize_google(audio)
+		text = r.recognize_wit(audio,"ZKH4OYXN4M4WE5YFUACWZLBJRXY66UHF") # this is better than google, but it takes longer
 		# text = r.recognize_sphinx(audio) # this is offline
 		send(server,text)
-		saveAudio(audio,x)
+		# saveAudio(audio,x)
 	except sr.UnknownValueError: # sometimes if the audio is empty this happens
 		pass
 	except ConnectionResetError: # this means there was a server disconnect
