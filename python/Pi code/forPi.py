@@ -44,7 +44,7 @@ def getTextAndSend(server,audio,reconnect, r,x):
 
 
 def send(server, send):
-	b = send # do this just incase audio gets overwritten in main
+	b = send + " it worked" # do this just incase audio gets overwritten in main
 	# b = audio.get_raw_data()
 	l = str(len(b) + 10000000) # add this so that the string is always the same size
 	print("Sending message of size {}b".format(len(b)))
