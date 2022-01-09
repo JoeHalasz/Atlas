@@ -63,8 +63,8 @@ def handlePI(connection, piAddr):
 							break
 						except: # this means that the PC was disconnected 
 							# delete this PC from the list and try another computer
-							print()
-							print(traceback.format_exc())
+							# print()
+							# print(traceback.format_exc())
 							print("{}\t{} has disconnected.".format(getTime(), connectedPCs[i][2]))
 							connectedPCs.pop(i)
 							continue
