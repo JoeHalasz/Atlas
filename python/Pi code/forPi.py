@@ -55,7 +55,7 @@ def send(server, send):
 def getId(server):
 	try:
 		with open("id.txt", "r") as f:
-			piId = f.readline()
+			piId = f.readline().replace("\n","")
 			server.send(piId.encode('utf-8'))
 			piId = server.recv(1024).decode('utf-8')
 	except Exception:
