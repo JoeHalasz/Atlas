@@ -86,6 +86,7 @@ def serverConnection():
 def main():
 	
 	server, piId = serverConnection()
+	print(piId)
 	reconnect = False
 	while True:
 		try:
