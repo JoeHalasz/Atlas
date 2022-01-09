@@ -71,7 +71,7 @@ def handlePI(connection, piAddr):
 					i+=1
 				if not sent:
 					print("{}\tThere are no connected PC's with the id [{}].".format(getTime(), piId))
-					print("{}\tConnected PC's are:\n\t\t{}".format(getTime(), connectedPCs))
+					print("{}\tConnected PC's are:\t{}".format(getTime(), connectedPCs))
 
 
 				
