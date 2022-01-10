@@ -14,8 +14,8 @@ def calendarAdd(name,date,startTime="8am",endTime=""):
 	
 	
 
-def calendarRemove(name):
-	Events.eventChanges.append(EventClasses.EventChange("calendar", "remove", [name]))
+def calendarRemove(name, date):
+	Events.eventChanges.append(EventClasses.EventChange("calendar", "remove", [name, date]))
 
 
 
@@ -49,7 +49,7 @@ def getTime(text):
 		split = text.split(" ")
 		x = 0
 		while x < len(split):
-			if split[x] == "from":
+			if split[x] == "from" and len(split) > x+3:
 				startTime = split[x+1]
 				endTime = split[x+3]
 				if not "pm" in startTime and not "am" in startTime:
@@ -82,7 +82,7 @@ def getDaysFromToday(addDays):
 	return formatDate(wantedDate)
 
 
-def getDate(text):
+def getDate(text, needDate=True):
 	rest = ""
 	wantedDate = None
 	if "tomorrow" in text:
@@ -131,14 +131,17 @@ def getDate(text):
 							break
 					x += 1
 				break
-		else:
+		if wantedDate == None:
 			if "on the" in text:
-				day = time.split("on the ")[1].split(" ")[0]
-				day = day.replace("st","").replace("nd","").replace("rd","").replace("th","") # make 1st into 1
-				wantedDate = getDateWithDayMonth(day, None)
-				
+				try:
+					day = text.split("on the ")[1].split(" ")[0]
+					text = text.replace("on the " + day, "")
+					day = day.replace("st","").replace("nd","").replace("rd","").replace("th","") # make 1st into 1
+					wantedDate = getDateWithDayMonth(day, None)
+				except:
+					pass
 	
-	if not wantedDate:
+	if not wantedDate and needDate:
 		wantedDate = getDaysFromToday(0) # if there is no date then use today
 
 	return text, wantedDate
@@ -165,3 +168,16 @@ def remindMeToParsing(text, command):
 		print(traceback.format_exc())
 
 
+def removeFromScheduleParsing(text, command):
+	firstWord = text.split(" ")[0] 
+	if firstWord == "remove" or firstWord == "delete":
+		text = ' '.join(text.split()[1:]) # delete first word
+	# there will not be any time stuff in text anymore 
+	text, wantedDate = getDate(text, False)
+	text = text.replace(command.lower() + " ","") 
+	text = text.replace(command.lower(), "") 
+	if text[0] == " ": # get rid of space at beggining
+		text = text[1:]
+	if text[-1] == " ": # get rid of space at the end
+		text = text[0:-1] 
+	calendarRemove(text, wantedDate)

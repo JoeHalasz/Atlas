@@ -1,6 +1,6 @@
 import time
 from Google import Create_Service, convert_to_RFC_datetime
-
+import traceback
 
 class EventChange():
 	#				        action(add), thing to add
@@ -61,13 +61,47 @@ class Calendar(Event):
 
 	# will attempt to delete the calendar item with the name eventName
 	# will return true or false depending on if it could find that event or not
-	def deleteCalendarItem(self, eventName):
+	def deleteCalendarItem(self, eventName, eventDate):
+		found = False
+		if eventName == "all events" and eventDate == None:
+			return False # do not allow user to delete all events on the calendar without a given date
 		for event in self.events:
-			if (event['summary'] == eventName):
-				self.service.events().delete(calendarId='primary', eventId=event['id']).execute()
-				return True
-		print("Could not find event:", eventName)
-		return False
+			nameCorrect = False
+			dateCorrect = False
+			if (event['summary'] == eventName or eventName == "all events"):
+				nameCorrect = True
+			if eventDate == None:
+				dateCorrect = True
+			else:
+				date = event['start']
+				try:
+					date = date['date']
+				except:
+					date = date['dateTime']
+					date = date.split("T")[0] # remove the time part
+				date = date.split("-")
+				date = date[1]+"/"+date[2]+"/"+date[0][-2:]
+				if eventDate == date:
+					dateCorrect = True
+
+			if nameCorrect and dateCorrect:
+				try:
+					self.service.events().delete(calendarId='primary', eventId=event['id']).execute()
+				except:
+					if "Resource has been deleted" in traceback.format_exc():
+						pass # this means that that thing already got deleted a little bit ago
+					else:
+						print(traceback.format_exc())
+				found = True
+				if eventName != "all events": # this will allow remove all to work
+					break
+		if not found:
+			if eventDate != None:
+				print('Could not find event: "{}" on {}'.format(eventName, eventDate))
+			else:
+				print('Could not find event: "{}"', eventName)
+
+		return found
 
 	def addCalendarItem(self,name,date,startTime="8am", endTime=""):
 		text = '{} {} {}'.format(name, date,startTime)
@@ -97,17 +131,18 @@ class Calendar(Event):
 	# name = name
 	# changeType = "add";"remove"
 	# change = [name, date(optional), time(optional)]
-	def makeChange(self, change): 
+	def makeChange(self, change):
+		self.refresh(True) 
 		name = change.changes[0]
+		date = change.changes[1]
 		if (change.changeType == "add"):
-			date = change.changes[1]
 			startTime = change.changes[2][0]
 			endTime = change.changes[2][1]
-			print("Adding {} to your schedule {} {}{}".format(name, date,startTime,"-"+endTime))
+			print('Adding "{}" to your schedule {} {}{}'.format(name, date,startTime,"-"+endTime))
 			self.addCalendarItem(name, date,startTime,endTime)
 		elif (change.changeType == "remove"):
-			print("Attempting to remove {} from your schedule.".format(name))
-			self.deleteCalendarItem(name)
+			print('Attempting to remove "{}" from your schedule on {}.'.format(name, date))
+			self.deleteCalendarItem(name, date)
 		else:
 			print("Unknown changeType for Calendar: {}".format(change.changeType))
 

@@ -24,7 +24,7 @@ commands = ["open", "start taking note", "take a note",
 			"write this down", "type this", "stop listening", 
 			"start typing", "press enter", "save", "press tab",
 			"close window", "refresh page", # 
-			"remind me to", "I have to","you have to", # calendar commands
+			"remind me to", "I have to","you have to","from my schedule","from my calendar", # calendar commands
 			"close tab", "close this tab", "close a tab", "close the tab", # browser commands
 			"message gianna", # discord command
 			"tab to", "alt tab to"
@@ -164,7 +164,9 @@ def textTransform(text):
 							keys.press(Key.f5)
 							keys.release(Key.f5)
 						elif command == "remind me to" or command == "I have to" or command == "you have to":
-							remindMeToParsing(text, command)							
+							remindMeToParsing(text, command)
+						elif command == "from my schedule" or command == "from my calendar":
+							removeFromScheduleParsing(text, command)
 						elif command == "close tab" or command == "close this tab" or command == "close a tab":
 							keys.press(Key.ctrl_l)
 							keys.press("w")
