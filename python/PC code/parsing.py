@@ -82,6 +82,14 @@ def getDaysFromToday(addDays):
 	return formatDate(wantedDate)
 
 
+def getDaysFromDate(date, addDays):
+	date = date.split("/")
+	date = datetime.datetime.today().replace(day=int(date[1]),month=int(date[0]),year=2000+int(date[2]))
+	wantedDate = date + datetime.timedelta(days=int(addDays))
+	wantedDate = datetime.datetime.strptime(str(wantedDate).split(".")[0], '%Y-%m-%d %H:%M:%S')
+	return formatDate(wantedDate)
+
+
 def getDate(text, needDate=True):
 	rest = ""
 	wantedDate = None
@@ -163,6 +171,7 @@ def remindMeToParsing(text, command):
 		if text[-1] == " ": # get rid of space at the end
 			text = text[0:-1] 
 		calendarAdd(text, wantedDate, startTime, endTime)
+		calendarAdd("Remember to " + text + " tomorrow", getDaysFromDate(wantedDate, -1), startTime, endTime)
 	except ValueError:
 		print("Something about the entered date does not work.")
 		print(traceback.format_exc())

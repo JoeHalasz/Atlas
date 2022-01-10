@@ -108,8 +108,8 @@ class Calendar(Event):
 		if endTime != "":
 			text+="-"+endTime
 		newEvent = self.service.events().quickAdd(
-		    calendarId='primary',
-		    text=text.format(date,time)).execute()
+			calendarId='primary',
+			text=text.format(date,time)).execute()
 	
 
 	# will refresh the self.events list
