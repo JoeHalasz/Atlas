@@ -38,24 +38,22 @@ typing = False
 keys = Controller()
 x = 0
 
-
 def typeWords(words):
 	global typing
 	done = False
 
 	for s in stopTypingTriggers:
-		if s in words:
+		if s in fixText(words):
 			done=True
-			words = words.replace(s, "")
-	
+			words = words.lower().replace(s, "")
+
 	words = words.replace("next line", "next_line")
 	words = words.replace("press enter", "next_line")
 	words = words.replace("delete word", "delete_word")
 	words = words.replace("press backspace", "delete_word")
-	words = words.replace(". ", ".")
+	# words = words.replace(". ", ".")
 	words = words.replace("Txt", "txt")
 	wordsList = words.split(" ")
-	print(wordsList)
 	if "delete" in wordsList: # check if user said "delete N words"
 		place = wordsList.index("delete")
 		try:
@@ -70,8 +68,8 @@ def typeWords(words):
 			return
 		except:
 			pass
-
-	for word in wordsList:
+			
+	for x, word in enumerate(wordsList):
 		if word == "next_line":
 			keys.press(Key.enter)
 			keys.release(Key.enter)
@@ -81,13 +79,11 @@ def typeWords(words):
 			keys.release(Key.ctrl_l)
 			keys.release(Key.backspace)
 		else:
-			letters = list(word)
-			for l in letters:
-				keys.press(l)
-				keys.release(l)
-			if len(letters) > 0:
+			keys.type(word)
+			if x != len(wordsList) - 1:
 				keys.press(Key.space)
 				keys.release(Key.space)
+
 	if done:
 		typing = False;
 	else:
@@ -105,6 +101,8 @@ def sendDiscordMessage(message, recipiant):
 
 
 def fixText(text):
+	if len(text) == 0:
+		return ""
 	if text[-1] == "." or text[-1] == "!" or text[-1] == "?":
 		text = text[:-1]
 	return text.lower().replace(",","")
@@ -112,6 +110,8 @@ def fixText(text):
 
 def textTransform(text):
 	global typing
+	oldText = text
+	text = fixText(text)
 	if text != None:
 		if text == "stop listening":
 			print("Good Bye")
@@ -119,7 +119,7 @@ def textTransform(text):
 		if text != "":
 			print(text)
 			if typing:
-				typeWords(text)
+				typeWords(oldText)
 			elif len(text) > 1:
 				text = text.lower()
 				noCommandFound = True
@@ -251,7 +251,7 @@ def main():
 			if audio == 'reconnect':
 				server = serverConnection()
 				continue
-			textTransform(fixText(text))
+			textTransform(text)
 			# saveAudio(audio, x)
 
 	except KeyboardInterrupt as e:
