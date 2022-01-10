@@ -66,7 +66,8 @@ def getTime(text):
 
 def getDateWithDayMonth(day, month):
 	dateTime = datetime.datetime.today().replace(day=int(day))
-	dateTime = dateTime.replace(month=MONTHS.index(month.lower())+1)
+	if month:
+		dateTime = dateTime.replace(month=MONTHS.index(month.lower())+1)
 	dateTime = formatDate(dateTime)
 	return dateTime
 
@@ -130,6 +131,12 @@ def getDate(text):
 							break
 					x += 1
 				break
+		else:
+			if "on the" in text:
+				day = time.split("on the ")[1].split(" ")[0]
+				day = day.replace("st","").replace("nd","").replace("rd","").replace("th","") # make 1st into 1
+				wantedDate = getDateWithDayMonth(day, None)
+				
 	
 	if not wantedDate:
 		wantedDate = getDaysFromToday(0) # if there is no date then use today
