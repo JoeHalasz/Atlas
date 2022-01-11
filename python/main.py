@@ -77,7 +77,7 @@ def typeWords(words):
 	keys.press(Key.enter)
 	keys.release(Key.enter)
 	if done:
-		typing = False;
+		typing = False
 		
 
 def openApplication(commandParams):
@@ -91,7 +91,6 @@ def openApplication(commandParams):
 		subprocess.call('C:\\Users\\jhala\\AppData\\Local\\GitHubDesktop\\GitHubDesktop.exe')
 	elif "unity" in commandParams:
 		subprocess.call('C:\\Program Files\\Unity Hub\\Unity Hub.exe')
-
 
 
 def textTransform(audio, r):
@@ -145,11 +144,10 @@ def textTransform(audio, r):
 							elif command == "refresh page":
 								keys.press(Key.f5)
 								keys.release(Key.f5)
-							break; 
+							break
 
 	except sr.UnknownValueError as e:
 		pass
-	
 
 
 def saveAudio(audio, num):
@@ -181,7 +179,6 @@ with sr.Microphone() as source:
 		
 		x += 1
 		t.join()
-
 
 
 # word to vec
