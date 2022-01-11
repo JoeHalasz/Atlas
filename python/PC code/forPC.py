@@ -88,7 +88,7 @@ def typeWords(words):
 				keys.release(Key.space)
 
 	if done:
-		typing = False;
+		typing = False
 	else:
 		keys.press(Key.enter)
 		keys.release(Key.enter)
