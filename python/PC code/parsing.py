@@ -8,15 +8,15 @@ MONTHS = ["january","february", "march", "april", "may", "june", "july", "august
 
 
 
-# name,date,starttime,endtime
+# this function will add the event to Google Calendar
 def calendarAdd(name,date,startTime="8am",endTime=""):
 	Events.eventChanges.append(EventClasses.EventChange("calendar", "add", [name, date, [startTime, endTime]]))
 	
-	
 
+# this takes a name and a date and will attempt to move that 
+# event or group of events from Google Calendar
 def calendarRemove(name, date):
 	Events.eventChanges.append(EventClasses.EventChange("calendar", "remove", [name, date]))
-
 
 
 # this will return the start time and the end time if they exist in the string.
@@ -64,6 +64,8 @@ def getTime(text):
 	return text, startTime, endTime
 
 
+# this function takes in a day and a month and returns the 
+# date using that day and month
 def getDateWithDayMonth(day, month):
 	dateTime = datetime.datetime.today().replace(day=int(day))
 	if month:
@@ -72,16 +74,21 @@ def getDateWithDayMonth(day, month):
 	return dateTime
 
 
+# this function takes a date and returns a better formatted date
 def formatDate(wantedDate):
 	return wantedDate.strftime('%m/%d/%y')
 
 
+# this function takes in an amount of days and returns 
+# todays date plus that many days
 def getDaysFromToday(addDays):
 	wantedDate = datetime.datetime.today() + datetime.timedelta(days=int(addDays))
 	wantedDate = datetime.datetime.strptime(str(wantedDate).split(".")[0], '%Y-%m-%d %H:%M:%S')
 	return formatDate(wantedDate)
 
 
+# this function takes in a date and an amount of days
+# and adds that many days to the date 
 def getDaysFromDate(date, addDays):
 	date = date.split("/")
 	date = datetime.datetime.today().replace(day=int(date[1]),month=int(date[0]),year=2000+int(date[2]))
@@ -90,6 +97,10 @@ def getDaysFromDate(date, addDays):
 	return formatDate(wantedDate)
 
 
+# this function will get the date out of the text, 
+# and remove the date from the text 
+# if the date is not given in the text then it will
+# use todays date
 def getDate(text, needDate=True):
 	rest = ""
 	wantedDate = None
@@ -177,6 +188,10 @@ def remindMeToParsing(text, command):
 		print(traceback.format_exc())
 
 
+# this function takes in the text and the command and will
+# attempt to remove whatever the user wants from Google Calendar
+# if "all events" is the event then it will delete all the events
+# on the given date
 def removeFromScheduleParsing(text, command):
 	firstWord = text.split(" ")[0] 
 	if firstWord == "remove" or firstWord == "delete":
