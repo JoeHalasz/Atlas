@@ -171,7 +171,7 @@ def textTransform(text):
 							keys.release("w")
 						elif command == "tab to" or command == "alt tab to":
 							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
-						break;
+						break
 				if noCommandFound:
 					if text.split(" ")[0] == "type":
 						typeWords(" ".join(text.split(" ")[1:]))
