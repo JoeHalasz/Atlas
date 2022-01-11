@@ -4,13 +4,15 @@ import EventClasses
 eventChanges = []
 
 
+# this will check if each event needs to be refreshed
 def checkTimedEvents(events):
 	# check all the timed events
 	for event in events:
 		event.refresh()
 
 
-
+# this will ensure that all the events get refreshed when they are 
+# supposed to. Must be run as a thread
 def createTimedEvents(run_event): # this is a thread	
 	global eventChanges
 	startTime = time.time()

@@ -2,6 +2,8 @@ import time
 from Google import Create_Service, convert_to_RFC_datetime
 import traceback
 
+
+# this is a class for when an event change happens
 class EventChange():
 	#				        action(add), thing to add
 	def __init__(self, name, changeType, changes):
@@ -9,7 +11,8 @@ class EventChange():
 		self.changeType = changeType
 		self.changes = changes
 
-
+# this is a class for an Event like a change in the calendar
+# has a method for refreshing every certain period of time 
 class Event():
 
 	# pass in the name of the event and the amount of seconds it should wait until the next refresh
@@ -26,7 +29,7 @@ class Event():
 		return False
 
 
-
+# this is the a class for the Google Calendar
 class Calendar(Event):
 
 	# here is the Google Calendar API
@@ -103,6 +106,7 @@ class Calendar(Event):
 
 		return found
 
+	# will add an item to Google Calendar using the quickAdd function
 	def addCalendarItem(self,name,date,startTime="8am", endTime=""):
 		text = '{} {} {}'.format(name, date,startTime)
 		if endTime != "":

@@ -22,11 +22,16 @@ def getID(connection):
 		connection.send(piId.encode('utf-8'))
 		return piId
 
-
+# this function is used at the beginning of every print
+# returns the current date and time
 def getTime():
 	return datetime.now().strftime("%m/%d/%Y %H:%M:%S")
 
 
+# this is the function that handles a new PI connection.
+# this function should be run as a thread
+# it will continuously wait for data to be sent from 
+# the pi and then send that data to the correct connected PC
 def handlePI(connection, piAddr):
 	try:
 		global connectedPCs
@@ -80,6 +85,9 @@ def handlePI(connection, piAddr):
 		print("{}\tDisconnecting pi {}".format(getTime(), piId))
 
 
+# this function will start the server
+# waits for a connection from either a PI or a PC
+# and handles it accordingly 
 def main():
 	time.sleep(1)
 	print("{}\tStarting server".format(getTime()))

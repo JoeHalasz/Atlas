@@ -7,6 +7,7 @@ from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from google.auth.transport.requests import Request
 
 
+# this function will connect to google calendar API
 def Create_Service(client_secret_file, api_name, api_version, *scopes):
     CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
@@ -46,6 +47,7 @@ def Create_Service(client_secret_file, api_name, api_version, *scopes):
         os.remove(os.path.join(working_dir, token_dir, pickle_file))
         return None
 
+# helper function
 def convert_to_RFC_datetime(year=1900, month=1, day=1, hour=0, minute=0):
     dt = datetime.datetime(year, month, day, hour, minute, 0).isoformat() + 'Z'
     return dt

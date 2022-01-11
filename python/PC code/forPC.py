@@ -26,7 +26,6 @@ commands = ["open", "start taking note", "take a note",
 			"close window", "refresh page", # 
 			"remind me to", "I have to","you have to","from my schedule","from my calendar", # calendar commands
 			"close tab", "close this tab", "close a tab", "close the tab", # browser commands
-			"message gianna", # discord command
 			"tab to", "alt tab to"
 			]
 
@@ -38,6 +37,10 @@ typing = False
 keys = Controller()
 x = 0
 
+
+# this function will type out the passed in wordss
+# it will also parse things like 
+# next line, press enter, delete word and press backspace.
 def typeWords(words):
 	global typing
 	done = False
@@ -90,16 +93,7 @@ def typeWords(words):
 		keys.press(Key.enter)
 		keys.release(Key.enter)
 
-
-def sendDiscordMessage(message, recipiant):
-	try:
-		user = client.get_user(recipiant)
-		user.send(message)
-	except:
-		print("discord error")
-		print(traceback.format_exc())
-
-
+# this fucntion will remove punctuation and make sure the text is all lowercase
 def fixText(text):
 	if len(text) == 0:
 		return ""
@@ -108,6 +102,9 @@ def fixText(text):
 	return text.lower().replace(",","")
 
 
+# this function checks the passed in text against the list of 
+# commands and if one is found will run that command on it 
+# some commands start threads and others run on the main thread
 def textTransform(text):
 	global typing
 	oldText = text
@@ -172,8 +169,6 @@ def textTransform(text):
 							keys.press("w")
 							keys.release(Key.ctrl_l)
 							keys.release("w")
-						elif command == "message gianna":
-							sendDiscordMessage(text.split(command)[-1], "RatSmacker#9549")
 						elif command == "tab to" or command == "alt tab to":
 							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
 						break;
@@ -182,12 +177,19 @@ def textTransform(text):
 						typeWords(" ".join(text.split(" ")[1:]))
 
 
+# this function will save the audio.
+# it will use the num passed in as a part of the file name
 def saveAudio(audio, num):
 	if audio != "":
 		with open("microphone-results" + str(num) + ".wav", "wb") as f:
 			f.write(audio.get_wav_data())
 
 
+# this function will use the server connection and attempt to 
+# get data from the server. 
+# if the connection is broken it will return "reconnect"
+# if data is successfully downloaded from the server it will decode 
+# the data and return it as a string
 def getData(server):
 	while True:
 		try:
@@ -238,6 +240,9 @@ def serverConnection():
 			print(traceback.format_exc())
 	
 
+# this function will start the event thread for Google Calendar
+# then connect to the server
+# then continuously get data from the server, and process that data.
 def main():
 	run_event = threading.Event()
 	run_event.set()

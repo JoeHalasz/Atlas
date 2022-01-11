@@ -24,12 +24,15 @@ r.non_speaking_duration = 0.1  # seconds of non-speaking audio to keep on both s
 audio = [""]
 
 
+# this function will save the audio using x in the filename
 def saveAudio(audio, x):
 	if audio != "":
 		with open("sound"+str(x)+".wav", "wb") as f:
 			f.write(audio.get_wav_data())
 
 
+# this function will listen for audio, make that audio into text
+# then send the text to the server 
 def getTextAndSend(server,audio,reconnect, r,x):
 	try:
 		text = r.recognize_google(audio)
@@ -43,6 +46,7 @@ def getTextAndSend(server,audio,reconnect, r,x):
 		reconnect = True
 
 
+# this fucntion will send text to the server
 def send(server, send):
 	b = send # do this just incase audio gets overwritten in main
 	# b = audio.get_raw_data()
@@ -52,6 +56,8 @@ def send(server, send):
 	server.send(b.encode("utf-8"))
 	
 
+# this function will get this PI's ID, and if it doesnt have one,
+# it will get a new one from the server
 def getId(server):
 	try:
 		with open("id.txt", "r") as f:
@@ -67,7 +73,8 @@ def getId(server):
 	print("My ID is", piId)
 	return piId
 
-	
+
+# this function will connect to the server and get the PiId
 def serverConnection():
 	server = None
 	tries = 0
@@ -87,10 +94,11 @@ def serverConnection():
 			time.sleep(1)
 
 
-
-
-def main():
-	
+# this function will connect to the server 
+# then continuously listen for audio
+# convert that audio to text 
+# then send it to the server 
+def main():	
 	server, piId = serverConnection()
 	print(piId)
 	reconnect = False
