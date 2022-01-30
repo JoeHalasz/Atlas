@@ -26,6 +26,7 @@ commands = ["open", "start taking note", "take a note",
 			"close window", "refresh page", # 
 			"remind me to", "I have to","you have to","from my schedule","from my calendar", # calendar commands
 			"close tab", "close this tab", "close a tab", "close the tab", # browser commands
+			"message gianna","tell gianna", # discord commands
 			"tab to", "alt tab to"
 			]
 
@@ -171,6 +172,18 @@ def textTransform(text):
 							keys.release("w")
 						elif command == "tab to" or command == "alt tab to":
 							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
+						elif command == "message gianna" or command == "tell gianna":
+							applicationStuff.bringToForground("discord", keys)
+							keys.press(Key.ctrl_l)
+							keys.press("k")
+							keys.release(Key.ctrl_l)
+							keys.release("k")
+							typeWords("ratsmacker")
+							keys.press(Key.enter)
+							keys.release(Key.enter)
+							keys.press(Key.tab)
+							keys.release(Key.tab)
+							typeWords(commandParams)
 						break
 				if noCommandFound:
 					if text.split(" ")[0] == "type":
