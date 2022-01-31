@@ -97,10 +97,13 @@ def typeWords(words):
 
 def sendDiscordMessage(keys, username, commandParams):
 	applicationStuff.bringToForground("discord", keys)
+	applicationStuff.bringToForground("discord", keys)
+	time.sleep(.25)
 	keys.press(Key.ctrl_l)
 	keys.press("k")
 	keys.release(Key.ctrl_l)
 	keys.release("k")
+	time.sleep(.25)
 	typeWords(username)
 	keys.press(Key.enter)
 	keys.release(Key.enter)
@@ -189,7 +192,7 @@ def textTransform(text):
 						elif command == "tab to" or command == "alt tab to":
 							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
 						elif command == "message gianna" or command == "tell gianna":
-							applicationStuff.sendDiscordMessage(keys, "ratsmacker", commandParams)
+							sendDiscordMessage(keys, "ratsmacker", commandParams)
 						break
 				if noCommandFound:
 					if text.split(" ")[0] == "type":
