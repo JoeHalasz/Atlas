@@ -1,3 +1,5 @@
+from asyncio.constants import SENDFILE_FALLBACK_READBUFFER_SIZE
+from click import CommandCollection
 import speech_recognition as sr
 import threading
 from pynput.keyboard import Key, Controller
@@ -10,6 +12,8 @@ import datetime
 from parsing import *
 import socket
 import time
+
+from random import randrange, choice
 
 import applicationStuff
 
@@ -26,7 +30,7 @@ commands = ["open", "start taking note", "take a note",
 			"close window", "refresh page", # 
 			"remind me to", "I have to","you have to","from my schedule","from my calendar", # calendar commands
 			"close tab", "close this tab", "close a tab", "close the tab", # browser commands
-			"message gianna","tell gianna" # discord commands
+			"message gianna something random","message gianna","tell gianna", # discord commands
 			"tab to", "alt tab to"
 			]
 
@@ -93,6 +97,16 @@ def typeWords(words):
 	else:
 		keys.press(Key.enter)
 		keys.release(Key.enter)
+
+
+def makeRandomSentence():
+	s = ""
+	for x in range(randrange(20,40)):
+		c = choice(commands)
+		c2 = c.split(" ")
+		word = choice(c2)
+		s +=  word + " "
+	return s
 
 
 def sendDiscordMessage(keys, username, commandParams):
@@ -191,6 +205,8 @@ def textTransform(text):
 							keys.release("w")
 						elif command == "tab to" or command == "alt tab to":
 							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
+						elif command == "message gianna something random":
+							sendDiscordMessage(keys, "ratsmacker", makeRandomSentence())
 						elif command == "message gianna" or command == "tell gianna":
 							sendDiscordMessage(keys, "ratsmacker", commandParams)
 						break
