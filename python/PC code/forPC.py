@@ -31,7 +31,7 @@ commands = ["open", "start taking note", "take a note",
 			"remind me to", "I have to","you have to","from my schedule","from my calendar", # calendar commands
 			"close tab", "close this tab", "close a tab", "close the tab", # browser commands
 			"message gianna something random","message gianna","tell gianna", # discord commands
-			"tab to", "alt tab to"
+			"tab to", "alt tab to","alt-tab to"
 			]
 
 stopTypingTriggers = ["stop writing", "stop typing", "end note", "stop taking note"]
@@ -203,7 +203,7 @@ def textTransform(text):
 							keys.press("w")
 							keys.release(Key.ctrl_l)
 							keys.release("w")
-						elif command == "tab to" or command == "alt tab to":
+						elif command == "tab to" or command == "alt tab to" or command == "alt-tab to":
 							applicationStuff.bringToForground(text.split(command)[-1], keys, True)
 						elif command == "message gianna something random":
 							sendDiscordMessage(keys, "ratsmacker", makeRandomSentence())
@@ -311,4 +311,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
