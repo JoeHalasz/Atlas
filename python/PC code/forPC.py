@@ -246,7 +246,7 @@ def getData(server):
 			return "reconnect"
 		except Exception:
 			e = traceback.format_exc()
-			if "timeout" in e:
+			if "timeout" in e.lower():
 				pass
 			else:
 				print(e)
@@ -265,17 +265,27 @@ def getID():
 # this will connect to the server and ensure that the server knows we are still connected
 def serverConnection():
 	server = None
+	tries = 0
+	timeoutTime = 5
 	while True: # try to connect
 		try:
 			print("Trying to connect to server")
-			serverIp = "71.105.82.137"
+			if tries % 2 == 0:
+				serverIp = "71.105.82.137"
+			else:
+				serverIp = "localhost"
+				timeoutTime = 1
+				print("Checking localhost")
 			server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			server.settimeout(5) # 5 seconds need this so that ctrl c works
+			server.settimeout(timeoutTime) # 5 seconds need this so that ctrl c works
 			server.connect((serverIp, 51152))
 			server.send("PC,{}".format(getID()).encode('utf-8'))
 			return server
 		except:
+			tries += 1
 			print(traceback.format_exc())
+			print("Try", tries)
+			time.sleep(1)
 	
 
 # this function will start the event thread for Google Calendar
@@ -287,8 +297,8 @@ def main():
 
 	server = serverConnection()
 
-	t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
-	t.start()
+	# t = threading.Thread(target=Events.createTimedEvents, args=(run_event,))
+	# t.start()
 	
 	try:
 		while True:

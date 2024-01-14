@@ -78,11 +78,18 @@ def getId(server):
 def serverConnection():
 	server = None
 	tries = 0
+	timeoutTime = 5
 	while True:
 		try:
 			print("trying to connect")
-			serverIp = "71.105.82.137"
+			if tries % 2 == 0:
+				serverIp = "71.105.82.137"
+			else:
+				serverIp = "localhost"
+				timeoutTime = 1
+				print("Checking localhost")
 			server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			server.settimeout(timeoutTime) # 5 seconds need this so that ctrl c works
 			server.connect((serverIp, 51152))
 			server.send("PI".encode('utf-8'))
 			piId = getId(server)
