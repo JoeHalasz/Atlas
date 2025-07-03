@@ -271,7 +271,7 @@ def serverConnection():
 		try:
 			print("Trying to connect to server")
 			if tries % 2 == 0:
-				serverIp = "71.105.82.137"
+				serverIp = "localhost"
 			else:
 				serverIp = "localhost"
 				timeoutTime = 1
